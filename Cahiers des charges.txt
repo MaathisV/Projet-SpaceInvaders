@@ -1,0 +1,26 @@
+Cahiers des Charges Space Invader
+
+Jeu :
+-	Decompte de démarrage
+-	Changer les vaisseaux (joueurs et ennemis)
+-	Déplacement uniquement latéral
+-	Ajout d’un mode pause (possibilité de quitter a partir de la pause)
+-	BOSS qui se déplace et qui tire 2 laser
+
+Menu :
+-	Ecran d’accueil
+-	Aide joueur
+-	Pseudo pour affichage dans tableau score
+-	Choix vaisseau
+-	Différent niveau de jeux (vitesse, nombre de vaisseaux)
+-	Menu jouer quitter, règles, (paramètres) ?, tableau des scores
+
+Bonus :
+-	Choix avatar (+pouvoirs)
+-	Recherche possibilité ajout musique
+-	Accueil animé
+-	Multijoueur
+-	BOSS (de fin de jeu/niveau) avec barre de vie
+-	Power up d’invincibilité
+-	Malus divers
+-	Bonus : laser à utilisation limité (tir avec espace)
