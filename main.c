@@ -10,6 +10,7 @@ gcc -o projet main.c -lncurses
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 
 //FONCTION DE MISE EN FORME DU TERMINAL
@@ -71,7 +72,6 @@ void startscr()
     initscr();
     start_color();
     cbreak();
-    noecho();
     curs_set(0);
     keypad(stdscr, true);
 }
@@ -83,11 +83,15 @@ Entrées : néant
 Sorties : choix (choix de l'utilisateur ; (1:Jouer, 2: Règles, 3:Paramètres, 4:Scores, 5:Quitter))*/
 int ChoixMenu()
 {
-    int choix;  //Valeur du choix utilisateur
+    int choix=-1;  //Valeur du choix utilisateur
+
     // Affichage de l'écran d'accueil et du menu
-    printw("Bienvenue dans le jeu\n que voulez vous faire\n1 - Jouer\n2 - Règles\n3 - Paramètres\n4 - Scores\n5 - Quitter\n Votre choix :");
-    scanw("%d", &choix);
-    refresh();
+    while (choix!=1 && choix!=2 && choix!=3 && choix!=4 && choix!=5)
+    {
+        printw("Bienvenue dans le jeu\n que voulez vous faire\n1 - Jouer\n2 - Règles\n3 - Paramètres\n4 - Scores\n5 - Quitter\n Votre choix :");
+        scanw("%d", &choix);
+        refresh();
+    }
     return choix;
 }
 
@@ -98,48 +102,61 @@ Entrées : néant
 Sorties : néant*/
 int DeplacementVaisseau()
 {
-        // Déclaration des variables
-    int x_vaisseau; //abscisse vaisseau
-    int xn_vaisseau;  //abscisse n-1 du vaisseau
-    unsigned char clavier=0; //action clavier utilisateur
+    int x_vaisseau=0; //abscisse vaisseau
+    int clavier='!'; //action clavier utilisateur
 
+    //noecho();   //n'affiche pas les entrées sur le terminal
 
-    // Dans la boucle while les instruction pour le jeu
-    while(clavier=='p')
+    printw("<|>");  //Affichage du vaisseau
+    
+    while(clavier!='p')
     {
-        clavier = nb_getch();
-
-        //affichage vaisseau
-  
-
         // Modification des données du jeu et entrees utilisateur
         if (clavier=='q')
         {
-            xn_vaisseau = x_vaisseau-3;
-            move(0,xn_vaisseau);
-            printw("   ");
-            x_vaisseau = x_vaisseau - 1;
-            move(0,x_vaisseau);
-            printw("<|>");
+            mvprintw(LINES,(x_vaisseau - 3),"    ");    //effacement du vaisseau précédent
+            x_vaisseau--;   //décrémentation
+            mvprintw(LINES,(x_vaisseau),"<|>"); //affichage du vaisseau au nouvel emplacement
+            clavier = nb_getch();
         }
         else if (clavier=='d')
         {
-            xn_vaisseau = x_vaisseau-3;
-            move(0,xn_vaisseau);
-            printw("   ");
-            x_vaisseau = x_vaisseau + 1;
-            move(0,x_vaisseau);
-            printw("<|>");
+            mvprintw(LINES,(x_vaisseau - 3),"    ");    //effacement du vaisseau précédent
+            x_vaisseau++;   //incrémentation
+            mvprintw(LINES,(x_vaisseau),"<|>"); //affichage du vaisseau au nouvel emplacement
+            clavier = nb_getch();
         }
 
         else if (clavier=='p')
         {
+            printw("fin du jeu");
             system("clear");
         }
 
         refresh();
         sleep(0.01);
     }
+
+    clavier = nb_getch();
+}
+
+
+
+/*FONCTION Jouer() : Démarre le jeu
+Entrées : néant
+Sorties : néant*/
+int Jouer()
+{
+    char nom;
+
+    system("clear");
+    mvprintw(0, (COLS / 2) - (19 / 2), "Saisissez votre nom");
+    move(3,(COLS/2));
+    scanw("%c",&nom);
+    system("clear");
+    
+    DeplacementVaisseau();
+
 }
 
 
@@ -147,12 +164,10 @@ int DeplacementVaisseau()
 int main()
 {
     startscr();
-
         //Affichage du menu et aiguillage
-    ChoixMenu();
     switch(ChoixMenu())
     {
-        case 1: printw("Jouer");
+        case 1: Jouer();
         break;
         case 2: printw("Règles");
         break;
