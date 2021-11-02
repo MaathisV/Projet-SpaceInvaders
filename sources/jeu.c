@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <string.h>
 #include "../headers/jeu.h"
-#include "../headers/terminal.h"
 
 
 /*FONCTION Jouer() : Démarre le jeu

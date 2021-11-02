@@ -20,6 +20,7 @@ gcc -o projet main.c -lncurses
 int main()
 {
     startscr();
+
         //Affichage du menu et aiguillage
     switch(ChoixMenu())
     {
