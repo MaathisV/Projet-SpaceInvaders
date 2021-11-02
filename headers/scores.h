@@ -1,0 +1,3 @@
+/*scores.h
+Prototypes des fonction de gestion des scores
+*/
