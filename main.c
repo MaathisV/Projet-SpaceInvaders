@@ -12,6 +12,7 @@ gcc -o projet main.c -lncurses
 #include "sources/terminal.c"
 #include "sources/jeu.c"
 #include "sources/menus.c"
+#include "sources/parametres.c"
 
 
 
@@ -20,15 +21,16 @@ gcc -o projet main.c -lncurses
 int main()
 {
     startscr();
-    int parametres[50]; //Tableau contenant les paramètres du jeu
+    int tab_parametres[50]; //Tableau contenant les paramètres du jeu
+    int option; //choix du menu paramètres
 
 
         //Récupération des dimensions du terminal
-    getmaxyx(stdscr, parametres[0], parametres[1]);
-    //printw("%d\n%d", parametres[0], parametres[1]);   //Affichage des dimensions du terminal
+    getmaxyx(stdscr, tab_parametres[0], tab_parametres[1]);
+    //printw("%d\n%d", parametres[0], tab_parametres[1]);   //Affichage des dimensions du terminal
 
         //Affichage du menu et aiguillage
-    switch(ChoixMenuPrincipal(parametres[0], parametres[1]))
+    switch(ChoixMenuPrincipal(tab_parametres[0], tab_parametres[1]))
     {
         case 0:
             clear();
@@ -38,7 +40,8 @@ int main()
             break;
         case 2:
             clear();
-            ChoixMenuParametres(parametres[0], parametres[1]);
+            option = ChoixMenuParametres(tab_parametres[0], tab_parametres[1]);
+            Fct_Parametres(option, tab_parametres);
             break;
         case 3: printw("Scores");
             break;
