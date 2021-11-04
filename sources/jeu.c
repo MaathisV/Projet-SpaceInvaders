@@ -7,60 +7,50 @@
 #include "../headers/jeu.h"
 
 
-/*FONCTION Jouer() : Démarre le jeu
-Entrées : néant
-Sorties : néant*/
+
 int Jouer()
 {
-    char nom;
-
-    system("clear");
-    mvprintw(0, (COLS / 2) - (19 / 2), "Saisissez votre nom");
-    move(3,(COLS/2));
-    scanw("%c",&nom);
-    system("clear");
-    
-    DeplacementVaisseau();
-
-}
-
-
-
-int DeplacementVaisseau()
-{
     int x_vaisseau=0; //abscisse vaisseau
-    int clavier='!'; //action clavier utilisateur
-
-    //noecho();   //n'affiche pas les entrées sur le terminal
-
-    printw("<|>");  //Affichage du vaisseau
-    refresh();
+    int clavier; //action clavier utilisateur
+    int x_maxter, y_maxter; //dimensions du terminal
+    char vaisseau[] = "<[°]>";
+    int taille_vaisseau = strlen(vaisseau);
     
-    clavier = nb_getch();
+    getmaxyx(stdscr, y_maxter, x_maxter);
+ 
     
-    while(clavier!='p')
+    while(1)
     {
-        // Modification des données du jeu et entrees utilisateur
-        if (clavier==KEY_LEFT)
-        {
-            printw("gauche");
-            clavier = nb_getch();
-        }
-        else if (clavier=='d')
-        {
-            printw("gauche");
-            clavier = nb_getch();
-        }
+        clavier = nb_getch();
 
-        else if (clavier=='p')
+        mvprintw(0, x_vaisseau, vaisseau);  //affichage du vaisseau
+
+
+        // Modification des données du jeu et entrees utilisateur
+        switch (clavier)
         {
+        case 'q':
+            //mvprintw(0, x_vaisseau-1, ".....");
+            x_vaisseau--;
+            if (x_vaisseau == -1)
+                x_vaisseau = 0;
+            break;
+        case 'd':
+            //mvprintw(0, x_vaisseau+3, ".....");
+            x_vaisseau++;
+            if (x_vaisseau > x_maxter)
+                x_vaisseau = x_maxter;
+            break;
+        case 'p':
             printw("fin du jeu");
             system("clear");
+            break;
         }
+
+        mvprintw(0, x_vaisseau-1, " ");
+        mvprintw(0, x_vaisseau + taille_vaisseau, " ");
 
         refresh();
         sleep(0.01);
     }
-
-    clavier = nb_getch();
 }

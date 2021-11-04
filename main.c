@@ -24,7 +24,9 @@ int main()
         //Affichage du menu et aiguillage
     switch(ChoixMenuPrincipal())
     {
-        case 0: Jouer();
+        case 0:
+            clear();
+            Jouer();
             break;
         case 1: printw("Règles");
             break;
