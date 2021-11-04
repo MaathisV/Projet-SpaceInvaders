@@ -25,7 +25,7 @@ int main()
 
         //Récupération des dimensions du terminal
     getmaxyx(stdscr, parametres[0], parametres[1]);
-    printw("%d\n%d", parametres[0], parametres[1]);
+    //printw("%d\n%d", parametres[0], parametres[1]);   //Affichage des dimensions du terminal
 
         //Affichage du menu et aiguillage
     switch(ChoixMenuPrincipal(parametres[0], parametres[1]))
@@ -36,7 +36,9 @@ int main()
             break;
         case 1: printw("Règles");
             break;
-        case 2: printw("Paramètres");
+        case 2:
+            clear();
+            ChoixMenuParametres(parametres[0], parametres[1]);
             break;
         case 3: printw("Scores");
             break;
