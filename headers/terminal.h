@@ -41,3 +41,8 @@ char b_getch();
 Entrées : néant
 Sorties : néant*/
 void startscr();
+
+
+/*Fonction de récupération des dimensions du terminal
+Entrées/Sorties : tab_parametres[] (tableau de parametres du programme) */
+int dim_terminal(int tab_parametres[]);

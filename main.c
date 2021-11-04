@@ -29,8 +29,7 @@ int main()
     while (choix != 4)
     {
             //Récupération des dimensions du terminal
-        getmaxyx(stdscr, tab_parametres[0], tab_parametres[1]);
-        //printw("%d\n%d", parametres[0], tab_parametres[1]);   //Affichage des dimensions du terminal
+        dim_terminal(tab_parametres);
         
         choix = ChoixMenuPrincipal(tab_parametres);
             //Affichage du menu et aiguillage
