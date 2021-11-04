@@ -6,7 +6,7 @@
 
 
 
-int ChoixMenuPrincipal()
+int ChoixMenuPrincipal(int y_maxter, int x_maxter)
 {
     char titre[] = {"SPACE INVADERS"};
     char *menu_liste[5] = {"Jouer", "Règles", "Paramètres", "Scores", "Quitter"};
@@ -15,7 +15,6 @@ int ChoixMenuPrincipal()
     int long_info = strlen(info);
     int select = 0; //Option du menu selectionnée (mais non validée)
     int action; //recupère la touche pressée
-    int y_maxter, x_maxter; //dimensions y et x du terminal
 
         //Récuperation des dimensions du terminal
     getmaxyx(stdscr,  y_maxter, x_maxter);

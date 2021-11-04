@@ -20,9 +20,15 @@ gcc -o projet main.c -lncurses
 int main()
 {
     startscr();
-    //getmaxyx(stdsrc, y, x);
+    int parametres[50]; //Tableau contenant les paramètres du jeu
+
+
+        //Récupération des dimensions du terminal
+    getmaxyx(stdscr, parametres[0], parametres[1]);
+    printw("%d\n%d", parametres[0], parametres[1]);
+
         //Affichage du menu et aiguillage
-    switch(ChoixMenuPrincipal())
+    switch(ChoixMenuPrincipal(parametres[0], parametres[1]))
     {
         case 0:
             clear();
