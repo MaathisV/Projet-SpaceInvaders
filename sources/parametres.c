@@ -23,7 +23,7 @@ void Fct_Parametres(int option, int tab_parametres[])
         case 4: 
             break;
         case 5:
-            ChoixMenuPrincipal(tab_parametres[0], tab_parametres[1]);
+            ChoixMenuPrincipal(tab_parametres);
             break;
         default:
             break;

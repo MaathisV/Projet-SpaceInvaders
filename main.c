@@ -23,35 +23,39 @@ int main()
     startscr();
     int tab_parametres[50]; //Tableau contenant les paramètres du jeu
     int option; //choix du menu paramètres
+    int choix = -1;
 
 
-        //Récupération des dimensions du terminal
-    getmaxyx(stdscr, tab_parametres[0], tab_parametres[1]);
-    //printw("%d\n%d", parametres[0], tab_parametres[1]);   //Affichage des dimensions du terminal
-
-        //Affichage du menu et aiguillage
-    switch(ChoixMenuPrincipal(tab_parametres[0], tab_parametres[1]))
+    while (choix != 4)
     {
-        case 0:
-            clear();
-            Jouer();
-            break;
-        case 1: printw("Règles");
-            break;
-        case 2:
-            clear();
-            option = ChoixMenuParametres(tab_parametres[0], tab_parametres[1]);
-            Fct_Parametres(option, tab_parametres);
-            break;
-        case 3: printw("Scores");
-            break;
-        case 4: printw("Quitter");
-            break;
-        default:
-            break;
+            //Récupération des dimensions du terminal
+        getmaxyx(stdscr, tab_parametres[0], tab_parametres[1]);
+        //printw("%d\n%d", parametres[0], tab_parametres[1]);   //Affichage des dimensions du terminal
+        
+        choix = ChoixMenuPrincipal(tab_parametres);
+            //Affichage du menu et aiguillage
+        switch(choix)
+        {
+            case 0:
+                clear();
+                Jouer();
+                break;
+            case 1: printw("Règles");
+                break;
+            case 2:
+                clear();
+                option = ChoixMenuParametres(tab_parametres);
+                Fct_Parametres(option, tab_parametres);
+                break;
+            case 3: printw("Scores");
+                break;
+            case 4: printw("Quitter");
+                break;
+            default:
+                break;
+        }
     }
+        endwin();
 
-    endwin();
-
-    return 0;
+        return 0;
 }

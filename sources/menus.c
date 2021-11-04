@@ -6,7 +6,7 @@
 
 
 
-int ChoixMenuPrincipal(int y_maxter, int x_maxter)
+int ChoixMenuPrincipal(int tab_parametres[])
 {
     char titre[] = {"SPACE INVADERS"};
     char *menuPr_liste[5] = {"Jouer", "Règles", "Paramètres", "Scores", "Quitter"};
@@ -17,11 +17,11 @@ int ChoixMenuPrincipal(int y_maxter, int x_maxter)
     int action; //recupère la touche pressée
 
         //Création de la zone du menuPr, avec bordure
-    WINDOW *menuPr = newwin(9, long_info, (y_maxter / 3), (x_maxter / 2) - (long_info / 2));
+    WINDOW *menuPr = newwin(9, long_info, (tab_parametres[0] / 3), (tab_parametres[1] / 2) - (long_info / 2));
     box(menuPr, 0, 0);
     keypad(menuPr, true);
-    mvprintw(0, (x_maxter / 2) - (long_titre / 2), titre);  //Affichage du titre du jeu
-    mvprintw(y_maxter / 3 + 9, (x_maxter / 2) - long_info / 2, info);
+    mvprintw(0, (tab_parametres[1] / 2) - (long_titre / 2), titre);  //Affichage du titre du jeu
+    mvprintw(tab_parametres[0] / 3 + 9, (tab_parametres[1] / 2) - long_info / 2, info);
     refresh();
     
     
@@ -65,7 +65,7 @@ int ChoixMenuPrincipal(int y_maxter, int x_maxter)
 
 
 
-int ChoixMenuParametres(int y_maxter, int x_maxter)
+int ChoixMenuParametres(int tab_parametres[])
 {
     char titre[] = {"PARAMèTRES"};
     char *menuPa_liste[6] = {"Changer les couleurs", "Activer/Désactiver les effets sonores", "Mettre à jour la taille du terminal", "Rentrer un mot de passe", "Réinitialiser les scores", "Retour"};
@@ -76,11 +76,11 @@ int ChoixMenuParametres(int y_maxter, int x_maxter)
     int action; //recupère la touche pressée
 
         //Création de la zone du menuPr, avec bordure
-    WINDOW *menuPa = newwin(9, long_info, (y_maxter / 3), (x_maxter / 2) - (long_info / 2));
+    WINDOW *menuPa = newwin(9, long_info, (tab_parametres[0] / 3), (tab_parametres[1] / 2) - (long_info / 2));
     box(menuPa, 0, 0);
     keypad(menuPa, true);
-    mvprintw(0, (x_maxter / 2) - (long_titre / 2), titre);  //Affichage du titre du jeu
-    mvprintw(y_maxter / 3 + 9, (x_maxter / 2) - long_info / 2, info);
+    mvprintw(0, (tab_parametres[1] / 2) - (long_titre / 2), titre);  //Affichage du titre du jeu
+    mvprintw(tab_parametres[0] / 3 + 9, (tab_parametres[1] / 2) - long_info / 2, info);
     refresh();
     
     
