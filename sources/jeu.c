@@ -3,6 +3,7 @@
 #include <ncurses.h>
 #include <unistd.h>
 #include <string.h>
+#include "../headers/terminal.h"
 #include "../headers/jeu.h"
 
 
@@ -34,7 +35,7 @@ int DeplacementVaisseau()
 
     printw("<|>");  //Affichage du vaisseau
     refresh();
-
+    
     clavier = nb_getch();
     
     while(clavier!='p')

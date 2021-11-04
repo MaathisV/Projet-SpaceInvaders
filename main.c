@@ -11,7 +11,7 @@ gcc -o projet main.c -lncurses
 #include <stdlib.h>
 #include "sources/terminal.c"
 #include "sources/jeu.c"
-#include "sources/menu.c"
+#include "sources/menus.c"
 
 
 
@@ -20,19 +20,22 @@ gcc -o projet main.c -lncurses
 int main()
 {
     startscr();
-
+    //getmaxyx(stdsrc, y, x);
         //Affichage du menu et aiguillage
-    switch(ChoixMenu())
+    switch(ChoixMenuPrincipal())
     {
-        case 1: Jouer();
-        break;
-        case 2: printw("Règles");
-        break;
-        case 3: printw("Paramètres");
-        break;
-        case 4: printw("Scores");
-        break;
-        case 5: printw("Quitter");
+        case 0: Jouer();
+            break;
+        case 1: printw("Règles");
+            break;
+        case 2: printw("Paramètres");
+            break;
+        case 3: printw("Scores");
+            break;
+        case 4: printw("Quitter");
+            break;
+        default:
+            break;
     }
 
     endwin();
