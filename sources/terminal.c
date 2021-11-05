@@ -16,12 +16,22 @@ char nb_getch()
     timeout(0);
     return getch();
 }
+char nb_wgetch(WINDOW* fenetre)
+{
+    timeout(0);
+    return wgetch(fenetre);
+}
 
 
 char b_getch()
 {
     timeout(-1);
     return getch();
+}
+char b_wgetch(WINDOW* fenetre)
+{
+    timeout(-1);
+    return wgetch(fenetre);
 }
 
 
@@ -30,8 +40,8 @@ void startscr()
     initscr();
     start_color();
     cbreak();
-    curs_set(FALSE);
-    noecho();
+    //curs_set(FALSE);
+    //noecho();
 }
 
 

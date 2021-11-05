@@ -16,7 +16,7 @@ void Fct_Parametres(int option, int tab_parametres[])
         case 1: printw("Règles");
             break;
         case 2:
-
+            dim_terminal(tab_parametres);
             break;
         case 3: printw("Scores");
             break;

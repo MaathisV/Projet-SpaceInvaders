@@ -8,49 +8,53 @@
 
 
 
-int Jouer()
+int Jouer(int tab_parametres[])
 {
-    int x_vaisseau=0; //abscisse vaisseau
+    /*int x_vaisseau=0; //abscisse vaisseau
     int clavier; //action clavier utilisateur
-    int x_maxter, y_maxter; //dimensions du terminal
     char vaisseau[] = "<[°]>";
-    int taille_vaisseau = strlen(vaisseau);
+    int taille_vaisseau = strlen(vaisseau);*/
     
-    getmaxyx(stdscr, y_maxter, x_maxter);
+    printw("je suis le jeu");
+    WINDOW *jeu = newwin(4, 0, tab_parametres[0] - 1, tab_parametres[1]);
+    box(jeu, 0, 1);
+    refresh();
+    wrefresh(jeu);
+    refresh();
+}
  
-    
-    while(1)
+    /*while(1)
     {
-        clavier = nb_getch();
+        clavier = nb_wgetch(jeu);
 
-        mvprintw(0, x_vaisseau, vaisseau);  //affichage du vaisseau
+        mvwprintw(jeu, 0, x_vaisseau, vaisseau);  //affichage du vaisseau
 
 
         // Modification des données du jeu et entrees utilisateur
         switch (clavier)
         {
         case 'q':
-            //mvprintw(0, x_vaisseau-1, ".....");
             x_vaisseau--;
             if (x_vaisseau == -1)
                 x_vaisseau = 0;
             break;
         case 'd':
-            //mvprintw(0, x_vaisseau+3, ".....");
             x_vaisseau++;
-            if (x_vaisseau > x_maxter)
-                x_vaisseau = x_maxter;
+            if (x_vaisseau > tab_parametres[1])
+                x_vaisseau = tab_parametres[1];
             break;
         case 'p':
-            printw("fin du jeu");
+            wprintw(jeu, "fin du jeu");
             system("clear");
             break;
         }
 
-        mvprintw(0, x_vaisseau-1, " ");
-        mvprintw(0, x_vaisseau + taille_vaisseau, " ");
+        mvwprintw(jeu, 0, x_vaisseau-1, " ");
+        mvwprintw(jeu, 0, x_vaisseau + taille_vaisseau, " ");
 
+        wrefresh(jeu);
         refresh();
+        wrefresh(jeu);
         sleep(0.01);
     }
-}
+}*/

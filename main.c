@@ -26,18 +26,18 @@ int main()
     int choix = -1;
 
 
-    while (choix != 4)
-    {
             //Récupération des dimensions du terminal
-        dim_terminal(tab_parametres);
-        
+    dim_terminal(tab_parametres);
+    
+    while (choix != 4)
+    {   
         choix = ChoixMenuPrincipal(tab_parametres);
             //Affichage du menu et aiguillage
         switch(choix)
         {
             case 0:
                 clear();
-                Jouer();
+                Jouer(tab_parametres);
                 break;
             case 1: printw("Règles");
                 break;

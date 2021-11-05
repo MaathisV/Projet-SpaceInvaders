@@ -29,12 +29,14 @@ void color(int cT,int cF);
 Entrées : néant
 Sorties : néant*/
 char nb_getch();
+char nb_wgetch(WINDOW* fenetre);   //Dans le cas où l'on veut récupérer une saisie dans une fenêtre, on ajoute aussi le parametre fenetre
 
 
 /*Fonction qui récupère la touche pressée en mettant en pause l'exécution
 Entrées : néant
 Sorties : néant*/
 char b_getch();
+char b_wgetch(WINDOW* fenetre);   //Dans le cas où l'on veut récupérer une saisie dans une fenêtre, on ajoute aussi le parametre fenetre
 
 
 /*Fonction d'initialisation de l'écran
