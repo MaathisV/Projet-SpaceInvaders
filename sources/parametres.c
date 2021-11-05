@@ -17,6 +17,7 @@ void Fct_Parametres(int option, int tab_parametres[])
             break;
         case 2:
             dim_terminal(tab_parametres);
+            ChoixMenuPrincipal(tab_parametres);
             break;
         case 3: printw("Scores");
             break;
