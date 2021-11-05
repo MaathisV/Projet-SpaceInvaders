@@ -40,7 +40,7 @@ void startscr()
     initscr();
     start_color();
     cbreak();
-    curs_set(TRUE);
+    curs_set(FALSE);
     noecho();
 }
 
@@ -52,3 +52,4 @@ int dim_terminal(int tab_parametres[])
     int pause = getch();    //Pause pour laisser afficher l'information
     clear();
 }
+

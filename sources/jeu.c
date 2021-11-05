@@ -3,6 +3,7 @@
 #include <ncurses.h>
 #include <unistd.h>
 #include <string.h>
+#include <time.h>
 #include "../headers/terminal.h"
 #include "../headers/jeu.h"
 #include "../headers/menus.h"
@@ -12,7 +13,7 @@
 int Jouer(int tab_parametres[])
 {
         //Variable vaisseau
-    int x_vaisseau=1; //abscisse vaisseau
+    int x_vaisseau=tab_parametres[0] / 2; //abscisse vaisseau
     int clavier; //action clavier utilisateur
     char vaisseau[] = "<[°]>";
     int taille_vaisseau = strlen(vaisseau);
@@ -23,22 +24,50 @@ int Jouer(int tab_parametres[])
     int taille_pilule = strlen(pilule);
     char ennemi[] = "XXXX";
     int taille_ennemi = strlen(ennemi);
+    int tirage; //Détermine quel élement apparaitra sur l'écran en fonction d'une valeur aléatoire
+    int nb_pilules; //Stocke le nombre de pilules apparues a la suite
+    int nb_bonus, nb_malus; //Stocke le nombre de bonus/malus apparus à la suite
 
         //Variable interface
+    int start = 0; //définit l'état du jeu, en cours ou non
     int pause = 0;  //définit l'état de la pause, activée ou non
     int saisie_pause = 0;   //récupère la saisie clavier lorsque le jeu est en pause
-    int compteur_pause = 0; //compte le nombre de fois qu'une saisie particulière est récupérer
+    int compteur_pause = 0; //compte le nombre de fois qu'une saisie particulière est récupérée
 
     
-    mvprintw(tab_parametres[0], 0, "je suis le jeu");
+
+        //Création de la fenetre de jeu
     WINDOW *jeu = newwin(tab_parametres[0] - 2, tab_parametres[1], 4, 0);
     box(jeu, 0, 0);
+
+        //Affichage des éléments
+    mvprintw(tab_parametres[0], 0, "je suis le jeu");
     mvwprintw(jeu, tab_parametres[0] - 10, x_vaisseau, vaisseau);
+
     refresh();
     wrefresh(jeu);
 
-    while(1)
-    {
+        //Affichage du compteur de démarrage
+    mvprintw(0, 0, "%d", 3);
+    refresh();
+    sleep(1);
+    mvprintw(0, 0, "%d", 2);
+    refresh();
+    sleep(1);
+    mvprintw(0, 0, "%d", 1);
+    refresh();
+    sleep(1);
+    mvprintw(0, 0, "%d", 0);
+    refresh();
+    sleep(1);
+    start = 1;
+    mvprintw(0, 0, " ");
+    refresh();
+       
+
+    while(start == 1)
+    {   
+        nodelay(jeu, TRUE);
         clavier = nb_wgetch(jeu);
 
         mvwprintw(jeu, tab_parametres[0] - 10, x_vaisseau, vaisseau);  //affichage du vaisseau
@@ -83,7 +112,6 @@ int Jouer(int tab_parametres[])
             break;
         }
 
-        pos_elem[0] = 1;
 
         mvwprintw(jeu, tab_parametres[0] - 10, x_vaisseau-2, " ");
         mvwprintw(jeu, tab_parametres[0] - 10, x_vaisseau + taille_vaisseau + 1, " ");
@@ -92,8 +120,42 @@ int Jouer(int tab_parametres[])
         wrefresh(jeu);
         sleep(0.01);
 
-        pos_elem[1] = rand()%(tab_parametres[1] - 1 - taille_pilule) + 1;
-        mvwprintw(jeu, pos_elem[0], pos_elem[1], pilule);
+
+        int i;  //pour naviguer dans le tableau des valeurs et descendre chaque élément (a implenter) (thread?)
+            //Positionnement aléatoire de l'abscisse de départ du prochaine element
+            pos_elem[i] = 1;
+        pos_elem[i+1] = rand()%(tab_parametres[1] - 1 - taille_pilule) + 1;
+
+            //Tirage aléatoire du prochain element a apparaitre
+        tirage = rand()%20;
+        if (tirage == 0)
+        {
+            //mvwprintw(jeu, pos_elem[0], pos_elem[1], malus)
+            //nb_malus++;
+            nb_bonus = 0;
+            nb_pilules = 0;
+        }
+        else if (tirage == 1 && nb_bonus <= 3)
+        {
+            //mvwprintw(jeu, pos_elem[i], pos_elem[i+1], bonus)
+            nb_bonus++;
+            nb_pilules = 0;
+        }
+        else if ((tirage >= 2 && tirage <= 4) && nb_pilules <= 4)
+        {
+            mvwprintw(jeu, pos_elem[i], pos_elem[i+1], pilule);
+            nb_pilules++;
+            nb_bonus = 0;
+        }
+        else
+        {
+            mvwprintw(jeu, pos_elem[i], pos_elem[i+1], ennemi);
+            nb_pilules = 0;
+            nb_malus = 0;
+            nb_bonus = 0;        
+        }
+
+
         wrefresh(jeu);
         refresh();
     }
