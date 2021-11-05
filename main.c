@@ -29,8 +29,8 @@ int main()
             //Récupération des dimensions du terminal
     dim_terminal(tab_parametres);
     
-    while (choix != 4)
-    {   
+    //while (choix != 4)
+    //{   
         choix = ChoixMenuPrincipal(tab_parametres);
             //Affichage du menu et aiguillage
         switch(choix)
@@ -53,7 +53,7 @@ int main()
             default:
                 break;
         }
-    }
+    //}
         endwin();
 
         return 0;

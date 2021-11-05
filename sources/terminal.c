@@ -40,8 +40,8 @@ void startscr()
     initscr();
     start_color();
     cbreak();
-    //curs_set(FALSE);
-    //noecho();
+    curs_set(TRUE);
+    noecho();
 }
 
 
