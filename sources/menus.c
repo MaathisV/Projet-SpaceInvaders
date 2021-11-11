@@ -6,7 +6,9 @@
 
 
 
-int ChoixMenuPrincipal(int tab_parametres[])
+extern int tab_parametres[50];
+
+int ChoixMenuPrincipal()
 {
     char titre[] = {"SPACE INVADERS"};
     char *menuPr_liste[5] = {"Jouer", "Règles", "Paramètres", "Scores", "Quitter"};
@@ -65,7 +67,7 @@ int ChoixMenuPrincipal(int tab_parametres[])
 
 
 
-int ChoixMenuParametres(int tab_parametres[])
+int ChoixMenuParametres()
 {
     char titre[] = {"PARAMèTRES"};
     char *menuPa_liste[6] = {"Changer les couleurs", "Activer/Désactiver les effets sonores", "Mettre à jour la taille du terminal", "Rentrer un mot de passe", "Réinitialiser les scores", "Retour"};

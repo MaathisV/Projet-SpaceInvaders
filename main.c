@@ -16,35 +16,34 @@ gcc -o projet main.c -lncurses
 
 
 
-
+int tab_parametres[50]; //Tableau contenant les paramètres du jeu
 
 int main()
 {
     startscr();
-    int tab_parametres[50]; //Tableau contenant les paramètres du jeu
     int option; //choix du menu paramètres
     int choix = -1;
 
 
             //Récupération des dimensions du terminal
-    dim_terminal(tab_parametres);
+    dim_terminal();
     
     //while (choix == -1)
     //{   
-        choix = ChoixMenuPrincipal(tab_parametres);
+        choix = ChoixMenuPrincipal();
             //Affichage du menu et aiguillage
         switch(choix)
         {
             case 0:
                 clear();
-                Jouer(tab_parametres);
+                Jouer();
                 break;
             case 1: printw("Règles");
                 break;
             case 2:
                 clear();
-                option = ChoixMenuParametres(tab_parametres);
-                Fct_Parametres(option, tab_parametres);
+                option = ChoixMenuParametres();
+                Fct_Parametres(option);
                 break;
             case 3: printw("Scores");
                 break;

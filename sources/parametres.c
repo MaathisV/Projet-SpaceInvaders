@@ -6,7 +6,10 @@
 #include "../headers/terminal.h"
 
 
-void Fct_Parametres(int option, int tab_parametres[])
+
+extern int tab_parametres[50];
+
+void Fct_Parametres(int option)
 {
     switch(option)
     {

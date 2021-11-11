@@ -10,7 +10,9 @@
 
 
 
-void Jouer(int tab_parametres[])
+extern int tab_parametres[50];
+
+void Jouer()
 {
     int pos_elem[50] = {15};   //Contient la position de tout les elements apparaissant sur la fenêtre de jeu (initialisé à un pour la première valeur et 0 pour toutes les autres)
     int vie;    //nb de vie du joueur
@@ -49,13 +51,13 @@ void Jouer(int tab_parametres[])
         clavier = nb_wgetch(jeu);   //Récupère la saisie clavier dans la fenêtre de jeu
         //clavier = nb_getch
 
-        GestionEff(jeu, pos_elem, tab_parametres);  //efface les éléments déplacés de la boucle precédente
+        GestionEff(jeu, pos_elem);  //efface les éléments déplacés de la boucle precédente
 
         if (clavier == 32) //la touche espace est pressée
             Pause();
-        GestionMvElem(clavier, pos_elem, compteur, tab_parametres);
+        GestionMvElem(clavier, pos_elem, compteur);
 
-        GestionAff(jeu, pos_elem, compteur, tab_parametres);
+        GestionAff(jeu, pos_elem, compteur);
 
         wrefresh(jeu);
 
@@ -65,7 +67,7 @@ void Jouer(int tab_parametres[])
 
 
 
-void GestionMvElem(int clavier, int pos_elem[], int compteur, int tab_parametres[])
+void GestionMvElem(int clavier, int pos_elem[], int compteur)
 {
     int taille_vaisseau=5;
 
@@ -124,7 +126,7 @@ void Pause(int tab_parametres[])
 
 
 
-void GestionAff(WINDOW *jeu, int pos_elem[], int compteur, int tab_parametres[])
+void GestionAff(WINDOW *jeu, int pos_elem[], int compteur)
 {
     char vaisseau[] = "<[°]>", pilule[] = "OOOOO", ennemi[] = "XXXXX", malus[] = "m", bonus[] = "b";
     int nb_bonus, nb_malus, nb_pilules;  //Compte le nombre d'élements respectifs apparus consécutivement pour restreindre l'aléatoire
@@ -172,7 +174,7 @@ void GestionAff(WINDOW *jeu, int pos_elem[], int compteur, int tab_parametres[])
 
 
 
-void GestionEff(WINDOW *jeu, int pos_elem[], int tab_parametres[])
+void GestionEff(WINDOW *jeu, int pos_elem[])
 {
     mvwprintw(jeu, tab_parametres[0] - 10, pos_elem[1], " ");
     mvwprintw(jeu, tab_parametres[0] - 10, pos_elem[1]+5, " ");  
