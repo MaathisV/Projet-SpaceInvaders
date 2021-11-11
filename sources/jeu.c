@@ -12,16 +12,17 @@
 
 void Jouer(int tab_parametres[])
 {
-    int pos_elem[50];   //Contient la position de tout les elements apparaissant sur la fenêtre de jeu
+    int pos_elem[50] = {15};   //Contient la position de tout les elements apparaissant sur la fenêtre de jeu (initialisé à un pour la première valeur et 0 pour toutes les autres)
     int vie;    //nb de vie du joueur
     int clavier;    //Saisie utilisateur
     int pause;  //détermine l'état de la pause
+    int compteur = 0;   //Compte le nombre de
+
 
         //Définition de la fenêtre de jeu
-    WINDOW *jeu = newwin(tab_parametres[0] , tab_parametres[1], 0,0);
+    WINDOW *jeu = newwin(tab_parametres[0] - 3, tab_parametres[1], 2, 0);
     box(jeu, 0, 0);
     nodelay(jeu, TRUE);
-    mvwprintw(jeu, 1, 1, "test");
     refresh();
 
         //Affichage du compteur de démarrage
@@ -43,22 +44,28 @@ void Jouer(int tab_parametres[])
 
     while (vie != 0)
     {
+        compteur++;
+        
         clavier = nb_wgetch(jeu);   //Récupère la saisie clavier dans la fenêtre de jeu
         //clavier = nb_getch
 
-            //Aiguillage des saisies clavier
-        if ((clavier == 'q') || clavier == 'd')
-            GestionMvElem(clavier, pos_elem, tab_parametres);
-        else if (clavier == 32) //la touche espace est pressée
-            Pause();
+        GestionEff(jeu, pos_elem, tab_parametres);  //efface les éléments déplacés de la boucle precédente
 
-        GestionAff(jeu, pos_elem, tab_parametres);
+        if (clavier == 32) //la touche espace est pressée
+            Pause();
+        GestionMvElem(clavier, pos_elem, compteur, tab_parametres);
+
+        GestionAff(jeu, pos_elem, compteur, tab_parametres);
+
+        wrefresh(jeu);
+
+        sleep(0.01);
     }
 }
 
 
 
-void GestionMvElem(int clavier, int pos_elem[], int tab_parametres[])
+void GestionMvElem(int clavier, int pos_elem[], int compteur, int tab_parametres[])
 {
     int taille_vaisseau=5;
 
@@ -77,17 +84,20 @@ void GestionMvElem(int clavier, int pos_elem[], int tab_parametres[])
             break;
     }
 
-        //Positionnement aleatoire de l'abscisse d'un element (pilules, ennemis, bonus, malus)
+        //Positionnement aleatoire de l'abscisse d'un element (pilules, ennemis, bonus, malus) + descente
     for (int i=2; i<12; i=i+2)
     {
-        mvprintw(i-2, 0,"%d", i);
-        pos_elem[i+1] = rand()%(tab_parametres[1] - 1 - 5) + 1;
+        if (compteur%200==0)    //2s sont passées -> action validée
+        {
+            pos_elem[i+1] = rand()%(tab_parametres[1] - 1 - 1) + 1;
+            pos_elem[i]++;
+        }
     }
 }
 
 
 
-void Pause();
+void Pause(int tab_parametres[])
 {
     int compteur_pause=0;   //Permet de confirmer la sortie du jeu
     mvprintw(0, (tab_parametres[1] / 2) - (5/2), "PAUSE");
@@ -114,9 +124,9 @@ void Pause();
 
 
 
-void GestionAff(WINDOW *jeu, int pos_elem[], int tab_parametres[])
+void GestionAff(WINDOW *jeu, int pos_elem[], int compteur, int tab_parametres[])
 {
-    char vaisseau[] = "<[°]>", pilule[] = "OOOOO", ennemi[] = "XXXXX";
+    char vaisseau[] = "<[°]>", pilule[] = "OOOOO", ennemi[] = "XXXXX", malus[] = "m", bonus[] = "b";
     int nb_bonus, nb_malus, nb_pilules;  //Compte le nombre d'élements respectifs apparus consécutivement pour restreindre l'aléatoire
     int tirage; //nombre aléatoire qui détermine le future élément à apparaître
 
@@ -124,36 +134,46 @@ void GestionAff(WINDOW *jeu, int pos_elem[], int tab_parametres[])
     mvwprintw(jeu, tab_parametres[0] - 10, pos_elem[1], vaisseau);  //affichage du vaisseau
 
     
-        //Tirage aléatoire du prochain element a apparaitre
+    //Tirage aléatoire du prochain element a apparaitre
     for (int i=2; i<13; i=i+2)
     {
-        pos_elem[i] = 1;
-        tirage = rand()%20;
-        if (tirage == 0)
+        if (compteur%200==0)    //2s sont passé on valide l'apparition
         {
-            //mvwprintw(jeu, pos_elem[0], pos_elem[1], malus)
-            //nb_malus++;
-            nb_bonus = 0;
-            nb_pilules = 0;
-        }
-        else if (tirage == 1 && nb_bonus <= 3)
-        {
-            //mvwprintw(jeu, pos_elem[i], pos_elem[i+1], bonus)
-            nb_bonus++;
-            nb_pilules = 0;
-        }
-        else if ((tirage >= 2 && tirage <= 4) && nb_pilules <= 4)
-        {
-            mvwprintw(jeu, pos_elem[i], pos_elem[i+1], pilule);
-            nb_pilules++;
-            nb_bonus = 0;
-        }
-        else
-        {
-            mvwprintw(jeu, pos_elem[i], pos_elem[i+1], ennemi);
-            nb_pilules = 0;
-            nb_malus = 0;
-            nb_bonus = 0;        
+            tirage = rand()%20;
+            if (tirage == 0)
+            {
+                mvwprintw(jeu, pos_elem[i], pos_elem[i+1], malus);
+                //nb_malus++;
+                nb_bonus = 0;
+                nb_pilules = 0;
+            }
+            else if (tirage == 1 && nb_bonus <= 3)
+            {
+                mvwprintw(jeu, pos_elem[i], pos_elem[i+1], bonus);
+                nb_bonus++;
+                nb_pilules = 0;
+            }
+            else if ((tirage >= 2 && tirage <= 4) && nb_pilules <= 4)
+            {
+                mvwprintw(jeu, pos_elem[i], pos_elem[i+1], pilule);
+                nb_pilules++;
+                nb_bonus = 0;
+            }
+            else
+            {
+                mvwprintw(jeu, pos_elem[i], pos_elem[i+1], ennemi);
+                nb_pilules = 0;
+                nb_malus = 0;
+                nb_bonus = 0;        
+            }
         }
     }
+}
+
+
+
+void GestionEff(WINDOW *jeu, int pos_elem[], int tab_parametres[])
+{
+    mvwprintw(jeu, tab_parametres[0] - 10, pos_elem[1], " ");
+    mvwprintw(jeu, tab_parametres[0] - 10, pos_elem[1]+5, " ");  
 }
