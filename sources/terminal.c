@@ -8,7 +8,9 @@ extern int tab_parametres[50];
 
 void color(int cT,int cF)
 {
+        //Initialisation des paires de couleurs
     init_pair(1,cT,cF);
+    init_pair(2, 0, 15);
     attron(COLOR_PAIR(1));
 }
 
