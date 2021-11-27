@@ -2,6 +2,9 @@
 Prototype des fonctions pour la mise en forme du terminal */
 
 
+#ifndef HEADERS_TERMINAL
+#define HEADERS_TERMINAL
+
 /*Choix des couleurs de la police et de la fenêtre CONSOLE
     cT correspond a la couleur du texte
     cF correspond a la couleur de fond
@@ -49,3 +52,5 @@ void startscr();
 Entrées : néant
 Sorties : néant */
 void dim_terminal();
+
+#endif

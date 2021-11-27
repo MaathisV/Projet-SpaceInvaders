@@ -184,7 +184,7 @@ void GestionEff(WINDOW *jeu, data element[50], int compteur)
             mvwprintw(jeu, element[j].y, element[j].x, " ");
         else if ((element[j].type == 3) || (element[j].type == 4))
             mvwprintw(jeu, element[j].y, element[j].x, "     ");
-    
+    }
 }
 
 
