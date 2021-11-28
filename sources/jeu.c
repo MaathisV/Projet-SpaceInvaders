@@ -17,13 +17,15 @@ void Jouer()
     int vie;    //nb de vie du joueur
     int clavier;    //Saisie utilisateur
     int pause;  //détermine l'état de la pause
-    int compteur = 0;   //Compte le nombre de
+    int compteur = 0;   //Compte le nombre d'itérations de la boucle de jeu
+    int i=2;    //
 
 
         //Définition de la fenêtre de jeu
     WINDOW *jeu = newwin(tab_parametres[0] - 3, tab_parametres[1], 2, 0);
     box(jeu, 0, 0);
     nodelay(jeu, TRUE);
+    mvprintw(0, 0, "%d", compteur);
     refresh();
 
         //Affichage du compteur de démarrage
@@ -43,6 +45,13 @@ void Jouer()
     mvprintw(0, 0, " ");
     refresh();
 
+        //Initialisation de l'emplacement du vaisseau
+    element[0].x = 1;
+    element[0].y = tab_parametres[0] - 5;
+    element[0].init = 1;
+ 
+    element[1].init = 1;    //Boss (non implémenter)
+
     while (vie != 0)
     {
         compteur++;
@@ -50,21 +59,24 @@ void Jouer()
         clavier = nb_wgetch(jeu);   //Récupère la saisie clavier dans la fenêtre de jeu
         //clavier = nb_getch
 
-        GestionEff(jeu, element, compteur);  //efface les éléments déplacés de la boucle precédente
+        GestionEff(jeu, element, compteur, i);  //efface les éléments déplacés de la boucle precédente
 
         if (clavier == 32) //la touche espace est pressée
             Pause();
-        for (int i=2; (i<50) && ((compteur%20000) == 0); i++)
-            element[i].type = Tirage();
 
-        GestionMvElem(clavier, element, compteur);
-        GestionAff(jeu, element, compteur);
+        GestionMvElem(clavier, element, compteur, i);
+        GestionAff(jeu, element, compteur, i);
 
         wrefresh(jeu);
 
         //GestionCollision(vie);
 
-        sleep(0.01);
+        if (((compteur%100) == 0) && (i<50))
+            i++;
+        else /*if (i <! 50)*/
+            i = 2;
+
+        usleep(10000);
     }
 }
 
@@ -97,94 +109,18 @@ void Pause()
 
 
 
-void GestionMvElem(int clavier, data element[50], int compteur)
+void initElem(data element[50], int i)
 {
-        // Modification de la position du vaisseau en fonction des entrees clavier
-    switch (clavier)
+    if (element[i].init == 0)
     {
-        case 'q':
-            element[0].x--;
-            if (element[0].x == 0)
-                element[0].x = 1;
-            break;
-        case 'd':
-            element[0].x++;
-            if (element[0].x > tab_parametres[1] - 1 - 5)
-                element[0].x = tab_parametres[1] - 1 - 5;
-            break;
-    }
-
-        //Positionnement aleatoire de l'abscisse d'un element (pilules, ennemis, bonus, malus) + descente (non fonctionnel)
-    for (int i=2; (((compteur%20000) == 0) && (i<50)); i= i+ 1)    //toutes les deux secondes
-    {
-        element[i].x = 1;
-        element[i].y++;
-        /*if (element[i].y < (5)) //limite la descente (non fonctionnel)
-            element[i].y++;
-
-        if ((element[i].type == 1) || (element[i].type == 2))
-            element[i].x = rand()%((tab_parametres[1] - 2) - 1) + 1;
-        else if ((element[i].type == 3) || (element[i].type == 4))
-            element[i].x = rand()%((tab_parametres[1] - 2) - 5) + 1;
-        */
-
-    }
-
-}
-
-
-
-void GestionAff(WINDOW *jeu, data element[], int compteur)
-{
-    char vaisseau[] = "<[°]>", pilule[] = "OOOOO", ennemi[] = "XXXXX", malus[] = "m", bonus[] = "b";
-
-
-    mvwprintw(jeu, element[0].y, element[0].x, vaisseau);  //affichage du vaisseau
-
-
-    for (int i=2; ((i<50) && ((compteur%20000) == 0)); i=i+2)
-    {
-        switch (element[i].type)    //Affichage des autres element du jeu
-        {
-            case 0:
-                //BOSS (a implenter)
-                break;
-            case 1:
-                wattron(jeu, A_REVERSE);
-                mvwprintw(jeu, element[i].y, element[i].x, malus);
-                wattroff(jeu, A_REVERSE);
-                break;
-            case 2:
-                wattron(jeu, A_REVERSE);
-                mvwprintw(jeu, element[i].y, element[i].x, bonus);
-                wattroff(jeu, A_REVERSE);
-                break;
-            case 3:
-                mvwprintw(jeu, element[i].y, element[i].x, pilule);
-                break;
-            case 4:
-                mvwprintw(jeu, element[i].y, element[i].x, ennemi);
-                break;
-        }
-    }
-}
-
-
-
-void GestionEff(WINDOW *jeu, data element[50], int compteur)
-{
-        //Effacemement du vaisseau
-    mvwprintw(jeu, element[0].y, element[0].x, " ");
-    mvwprintw(jeu, element[0].y, element[0].x + 5, " ");  
-
-        //Effacement des elements
-    for (int j=2; j<50; j++) 
-    {
-        if ((element[j].type == 1) || (element[j].type == 2))
-            mvwprintw(jeu, element[j].y, element[j].x, " ");
-        else if ((element[j].type == 3) || (element[j].type == 4))
-            mvwprintw(jeu, element[j].y, element[j].x, "     ");
-    }
+        element[i].y = 0;
+        element[i].type = Tirage();
+    if ((element[i].type == 3) || (element[i].type == 4))
+        element[i].x = rand()%(tab_parametres[1] - 5 - 2) + 1;
+    if ((element[i].type == 2) || (element[i].type == 1))
+        element[i].x = rand()%(tab_parametres[1] - 1 - 2) + 1;
+    element[i].init = 1;
+    }    
 }
 
 
@@ -224,4 +160,89 @@ int Tirage()
             nb_bonus = 0;        
         }
     return element;
+}
+
+
+
+void GestionMvElem(int clavier, data element[50], int compteur, int i)
+{
+
+        // Modification de la position du vaisseau en fonction des entrees clavier
+    switch (clavier)
+    {
+        case 'q':
+            element[0].x--;
+            if (element[0].x == 0)
+                element[0].x = 1;
+            break;
+        case 'd':
+            element[0].x++;
+            if (element[0].x > tab_parametres[1] - 1 - 6)
+                element[0].x = tab_parametres[1] - 1 - 6;
+            break;
+    }
+
+    if ((compteur%100) == 0)
+    {
+        initElem(element, i);
+        if (element[i].y > (tab_parametres[0] - 6))
+            element[i].init = 0;
+        else
+            element[i].y++;   
+        
+    }
+}
+
+
+
+void GestionAff(WINDOW *jeu, data element[], int compteur, int i)
+{
+    char vaisseau[] = "<[°]>", pilule[] = "OOOOO", ennemi[] = "XXXXX", malus[] = "m", bonus[] = "b";
+
+
+    mvwprintw(jeu, element[0].y, element[0].x, vaisseau);  //affichage du vaisseau
+
+
+    if ((compteur%100) == 0)
+    {
+        switch (element[i].type)    //Affichage des autres element du jeu
+        {
+            case 0:
+                //BOSS (a implenter)
+                break;
+            case 1:
+                wattron(jeu, A_REVERSE);
+                mvwprintw(jeu, element[i].y, element[i].x, malus);
+                wattroff(jeu, A_REVERSE);
+                break;
+            case 2:
+                wattron(jeu, A_REVERSE);
+                mvwprintw(jeu, element[3].y, element[i].x, bonus);
+                wattroff(jeu, A_REVERSE);
+                break;
+            case 3:
+                mvwprintw(jeu, element[i].y, element[i].x, pilule);
+                break;
+            case 4:
+                mvwprintw(jeu, element[i].y, element[i].x, ennemi);
+                break;
+        }
+    }
+}
+
+
+
+void GestionEff(WINDOW *jeu, data element[50], int compteur, int i)
+{
+        //Effacemement du vaisseau
+    mvwprintw(jeu, element[0].y, element[0].x, " ");
+    mvwprintw(jeu, element[0].y, element[0].x + 5, " ");  
+
+    if ((compteur%100) == 0)
+    {    
+        if ((element[i].type == 1) || (element[i].type == 2))
+            mvwprintw(jeu, element[i].y, element[i].x, " ");
+        else if ((element[i].type == 3) || (element[i].type == 4))
+            mvwprintw(jeu, element[i].y, element[i].x, "     ");
+    }
 }
