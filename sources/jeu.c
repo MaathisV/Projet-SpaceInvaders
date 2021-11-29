@@ -15,13 +15,13 @@ void Jouer()
 {
     data element[50] = {0}; //Définition des données d'un élément (coordonnées et type) avec initialisation à zéro
     int vie;    //nb de vie du joueur
+    int *pointe_vie = &vie;    //Pointe la variable vie
     int clavier;    //Saisie utilisateur
     int pause;  //détermine l'état de la pause
     int compteur = 0;   //Compte le nombre d'itérations de la boucle de jeu
     int i=2;    //
     int score=0;
     //double long_sc = 8 + log(score) + 1;
-    int etat;
 
 
         //Définition de la fenêtre de jeu
@@ -71,8 +71,8 @@ void Jouer()
 
         wrefresh(jeu);
 
-        GestionCollision(vie);
-        MajAffInterface(vie, score, etat);//Initialisation de l'interface
+        GestionCollision(pointe_vie, element, compteur, i);
+        MajAffInterface(vie, score);//Initialisation de l'interface
 
         if (((compteur%100) == 0) && (i<3))
             i++;
@@ -85,12 +85,13 @@ void Jouer()
 
 
 
-void MajAffInterface(int vie, int score, int etat)
+void MajAffInterface(int vie, int score)
 {
     mvprintw(0,0, "Vie(s) : %d", vie);
     mvprintw(0,tab_parametres[1] - 12, "Score : %d", score);
     mvprintw(tab_parametres[0], 0, "Bonus");
     mvprintw(tab_parametres[0] - 1, (tab_parametres[1] / 2) - 4, "DISARMED");
+    refresh();
 }
 
 
@@ -262,7 +263,19 @@ void GestionEff(WINDOW *jeu, data element[50], int compteur, int i)
 
 
 
-int GestionCollision(int vie)
+void GestionCollision(int *pointe_vie, data element[], int compteur, int i)
 {
-    
+    if ((compteur%100) == 0)
+    {
+        if ((element[i].y == element[0].y) && ((element[i].x < element[0].x + 5) && (element[i].x > element[0].x - 5)))
+        {
+            if (element[i].type == 4)
+                *pointe_vie = *pointe_vie - 1;
+            else if (element[i].type == 3)
+                *pointe_vie = *pointe_vie + 1;
+            else if (element[i].type == 1 ||element[i].type == 2)
+                //Collision bonus/malus à implenter
+            element[i].init = 0;    //Désinitialisation de l'élément
+        }
+    }
 }
