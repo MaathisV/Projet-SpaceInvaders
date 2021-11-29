@@ -3,7 +3,7 @@
 #include <ncurses.h>
 #include <unistd.h>
 #include <string.h>
-#include <time.h>
+//#include <math.h>
 #include "../headers/terminal.h"
 #include "../headers/jeu.h"
 #include "../headers/menus.h"
@@ -19,14 +19,15 @@ void Jouer()
     int pause;  //détermine l'état de la pause
     int compteur = 0;   //Compte le nombre d'itérations de la boucle de jeu
     int i=2;    //
+    int score=0;
+    //double long_sc = 8 + log(score) + 1;
+    int etat;
 
 
         //Définition de la fenêtre de jeu
     WINDOW *jeu = newwin(tab_parametres[0] - 3, tab_parametres[1], 2, 0);
     box(jeu, 0, 0);
     nodelay(jeu, TRUE);
-    mvprintw(0, 0, "%d", compteur);
-    refresh();
 
         //Affichage du compteur de démarrage
     mvprintw(0, 0, "%d", 3);
@@ -52,6 +53,7 @@ void Jouer()
  
     element[1].init = 1;    //Boss (non implémenter)
 
+
     while (vie != 0)
     {
         compteur++;
@@ -69,15 +71,26 @@ void Jouer()
 
         wrefresh(jeu);
 
-        //GestionCollision(vie);
+        GestionCollision(vie);
+        MajAffInterface(vie, score, etat);//Initialisation de l'interface
 
-        if (((compteur%100) == 0) && (i<50))
+        if (((compteur%100) == 0) && (i<3))
             i++;
         else /*if (i <! 50)*/
             i = 2;
 
         usleep(10000);
     }
+}
+
+
+
+void MajAffInterface(int vie, int score, int etat)
+{
+    mvprintw(0,0, "Vie(s) : %d", vie);
+    mvprintw(0,tab_parametres[1] - 12, "Score : %d", score);
+    mvprintw(tab_parametres[0], 0, "Bonus");
+    mvprintw(tab_parametres[0] - 1, (tab_parametres[1] / 2) - 4, "DISARMED");
 }
 
 
@@ -245,4 +258,11 @@ void GestionEff(WINDOW *jeu, data element[50], int compteur, int i)
         else if ((element[i].type == 3) || (element[i].type == 4))
             mvwprintw(jeu, element[i].y, element[i].x, "     ");
     }
+}
+
+
+
+int GestionCollision(int vie)
+{
+    
 }

@@ -21,6 +21,12 @@ Entrées/Sorties : néant*/
 void Jouer();
 
 
+/* Fonction MajAffInterface() : met à jour l'interface du jeu
+Entrées : vie (vie du joueur), score (score du joueur), etat (le joueur est affecté par un bonus ou malus)
+Sorties : néant */
+void MajAffInterface(int vie, int score, int etat);
+
+
 /*FONCTION Pause() : Met en pause l'exécution du programme
 Entrées : néant
 Sorties : néant */
@@ -60,7 +66,7 @@ Sorties : néant */
 void GestionEff(WINDOW *jeu, data element[50], int compteur, int i);
 
 
-//int GestionCollision(, int vie);
+int GestionCollision(int vie);
 
 
 #endif
