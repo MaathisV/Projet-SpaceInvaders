@@ -107,6 +107,7 @@ void Pause()
         {
             case 32:   //on stoppe la pause
                 mvprintw(0, (tab_parametres[1] / 2) - (5/2), "     ");
+                return;
                 break;
                 //ajouter une ligne pour sortir de la boucle while
             case 27:    //on demande a quitter le jeu (avec la touche esc)
