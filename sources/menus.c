@@ -10,20 +10,36 @@ extern int tab_parametres[50];
 
 int ChoixMenuPrincipal()
 {
-    char titre[] = {"SPACE INVADERS"};
+    char titre[12][53] = {"   _____ ____  ___   ____________",
+                    "  / ___// __ \\/   | / ____/ ____/",
+                    "  \\__ \\/ /_/ / /| |/ /   / __/   ",
+                    " ___/ / ____/ ___ / /___/ /___  ", 
+                    "/____/_/   /_/  |_\\____/_____/   ",
+                                 
+"     _____   ___    _____    ____  __________  _____",
+"    /  _/ | / / |  / /   |  / __ \\/ ____/ __ \\/ ___/",
+"    / //  |/ /| | / / /| | / / / / __/ / /_/ /\\__ \\ ",
+"  _/ // /|  / | |/ / ___ |/ /_/ / /___/ _, _/___/ / ",
+" /___/_/ |_/  |___/_/  |_/_____/_____/_/ |_|/____/ "};
+
     char *menuPr_liste[5] = {"Jouer", "Règles", "Paramètres", "Scores", "Quitter"};
-    int long_titre = strlen(titre);
     char info[] = "Flèches pour sélectionner || Entrée pour valider";
     int long_info = strlen(info);
     int select = 0; //Option du menuPr selectionnée (mais non validée)
     int action; //recupère la touche pressée
 
         //Création de la zone du menuPr, avec bordure
-    WINDOW *menuPr = newwin(9, long_info, (tab_parametres[0] / 3), (tab_parametres[1] / 2) - (long_info / 2));
+    WINDOW *menuPr = newwin(9, long_info, 13, (tab_parametres[1] / 2) + - (long_info / 2));
     box(menuPr, 0, 0);
     keypad(menuPr, true);
-    mvprintw(0, (tab_parametres[1] / 2) - (long_titre / 2), titre);  //Affichage du titre du jeu
-    mvprintw(tab_parametres[0] / 3 + 9, (tab_parametres[1] / 2) - long_info / 2, info);
+
+        //Affichage du titre
+    for(int i=0;i<12;i++)
+    { for(int j=0;j<53;j++)
+        { printw("%c",titre[i][j]); }
+    printw("\n");
+    }
+    mvprintw(14 + 9, (tab_parametres[1] / 2) - long_info / 2, info);
     refresh();
     
     

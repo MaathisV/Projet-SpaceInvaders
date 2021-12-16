@@ -16,9 +16,24 @@ struct data
 };
 
 
+typedef struct score score;
+struct score
+{
+    char pseudo;
+    int score;
+};
+
+
 /*FONCTION Jouer() : Démarre une partie, initialise l'interface et appelle les fonctions de déplacement et d'affichage
 Entrées/Sorties : néant*/
 void Jouer();
+
+/*Fonction EntrerPseudo(); qui demande le pseudo du jouer*/
+void EntrerPseudo(score joueur[11]);
+
+/* Fonction AffichageCompteur() : affiche le compteur de départ
+Entrées/Sorties : néant */
+void AffichageCompteur();
 
 
 /* Fonction MajAffInterface() : met à jour l'interface du jeu

@@ -14,6 +14,8 @@ extern int tab_parametres[50];
 void Jouer()
 {
     data element[75] = {0}; //Définition des données d'un élément (coordonnées et type) avec initialisation à zéro
+    score joueur[11] = {0};
+
     int vie;    //nb de vie du joueur
     int *pointe_vie = &vie;    //Pointe la variable vie
     int effetJoueur=0; //Désigne le malus ou bonus qui affecte le joueur
@@ -30,23 +32,10 @@ void Jouer()
     WINDOW *jeu = newwin(tab_parametres[0] - 3, tab_parametres[1], 2, 0);
     box(jeu, 0, 0);
     nodelay(jeu, TRUE);
-
-        //Affichage du compteur de démarrage
-    mvprintw(0, 0, "%d", 3);
-    refresh();
-    sleep(1);
-    mvprintw(0, 0, "%d", 2);
-    refresh();
-    sleep(1);
-    mvprintw(0, 0, "%d", 1);
-    refresh();
-    sleep(1);
-    mvprintw(0, 0, "%d", 0);
-    refresh();
-    sleep(1);
+    
+    EntrerPseudo(joueur);
+    AffichageCompteur();
     vie = 5;
-    mvprintw(0, 0, " ");
-    refresh();
 
         //Initialisation de l'emplacement du vaisseau
     element[0].x = 1;
@@ -88,6 +77,87 @@ void Jouer()
     }
 }
 
+void EntrerPseudo(score joueur[11])
+{
+    char pseudo;
+    echo();
+    printw("Saisissez votre pseudo : ");
+    scanw("%c",&pseudo);
+    clear();
+    noecho();
+    for (int j=0;j<11;j++)
+    {
+        if (joueur[j].pseudo!=0)
+            joueur[j].pseudo=pseudo;
+
+    }
+    
+}
+
+
+void AffichageCompteur()
+{
+
+        //Définition des chiffres du compteur
+    char trois[5][7] = {" _____ ",
+                        "|___ / ",
+                        "  |_ \\ ",
+                        " ___) |",
+                        "|____/ "}; 
+                         
+    char deux[5][7] = {"  ____ ",
+                       " |___ \\",
+                       "  __) |",
+                       " / __/ ",
+                       "|_____|"};
+    char un[5][7] ={" _ ",
+                    "/ |",
+                    "| |",
+                    "| |",
+                    "|_|"} ; 
+
+    char zero[5][7]={"  ___ ", 
+                     " / _ \\ ",
+                     "| | | |",
+                     "| |_| |",
+                     " \\___/ "};   
+    
+    //Affichage du compteur de démarrage
+    for(int i=0;i<5;i++)
+    { for(int j=0;j<7;j++)
+        { printw("%c",trois[i][j]); }
+    printw("\n");
+    }
+    refresh();
+    clear();
+    sleep(1);
+    for(int i=0;i<5;i++)
+    { for(int j=0;j<7;j++)
+        { printw("%c",deux[i][j]); }
+    printw("\n");
+    }
+    refresh();
+    clear();
+    sleep(1);
+    for(int i=0;i<5;i++)
+    { for(int j=0;j<7;j++)
+        { printw("%c",un[i][j]); }
+    printw("\n");
+    }
+    refresh();
+    clear();
+    sleep(1);
+    
+    for(int i=0;i<5;i++)
+    { for(int j=0;j<7;j++)
+        { printw("%c",zero[i][j]); }
+    printw("\n");
+    }
+    refresh();
+    clear();
+    sleep(1);
+    refresh();
+}
 
 
 void MajAffInterface(int vie, int score, int effetJoueur)
@@ -292,7 +362,7 @@ void GestionEff(WINDOW *jeu, data element[75], int compteur)
     {
         for (int j=2; j<75; j++)
         {
-            if (element[j].init == 1)
+            if (element[j].init == 1);
             {
                 if ((element[j].type == 1) || (element[j].type == 2))
                     mvwprintw(jeu, element[j].y, element[j].x, " ");
