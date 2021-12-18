@@ -17,6 +17,8 @@ gcc -o projet main.c -lncurses
 
 
 int tab_parametres[50]; //Tableau contenant les paramètres du jeu
+score joueur[11];   //Tableau contenant le nom des joueurs et leurs meilleurs scores
+
 
 int main()
 {
@@ -28,8 +30,8 @@ int main()
             //Récupération des dimensions du terminal
     dim_terminal();
     
-    //while (choix == -1)
-    //{   
+    while (choix != 4)
+    {   
         choix = ChoixMenuPrincipal();
             //Affichage du menu et aiguillage
         switch(choix)
@@ -38,7 +40,9 @@ int main()
                 clear();
                 Jouer();
                 break;
-            case 1: printw("Règles");
+            case 1:
+                clear();
+                //Regles();
                 break;
             case 2:
                 clear();
@@ -52,7 +56,7 @@ int main()
             default:
                 break;
         }
-    //}
+    }
         endwin();
 
         return 0;

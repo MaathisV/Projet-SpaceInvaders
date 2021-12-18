@@ -10,16 +10,15 @@
 
 
 extern int tab_parametres[50];
+extern score joueur[11];
 
 void Jouer()
 {
-    data element[75] = {0}; //Définition des données d'un élément (coordonnées et type) avec initialisation à zéro
-    score joueur[11] = {0};
-
+    data element[50] = {0}; //Définition des données d'un élément (coordonnées et type) avec initialisation à zéro
     int vie;    //nb de vie du joueur
     int *pointe_vie = &vie;    //Pointe la variable vie
     int effetJoueur=0; //Désigne le malus ou bonus qui affecte le joueur
-    int *pointe_effetJoueur = &effetJoueur;  //pointe la variable etat_Affect 
+    int *pointe_effetJoueur = &effetJoueur;  //pointe la variable effetJoueur 
     int clavier;    //Saisie utilisateur
     int pause;  //détermine l'état de la pause
     int compteur = 0;   //Compte le nombre d'itérations de la boucle de jeu
@@ -27,22 +26,24 @@ void Jouer()
     int score=0;
     //double long_sc = 8 + log(score) + 1;
 
+    refresh();
+    vie = DebutPartie(joueur);
+    if (vie == -1)  //Quitte direction le menu
+        return;
+    AffichageCompteur();
 
         //Définition de la fenêtre de jeu
     WINDOW *jeu = newwin(tab_parametres[0] - 3, tab_parametres[1], 2, 0);
     box(jeu, 0, 0);
     nodelay(jeu, TRUE);
     
-    EntrerPseudo(joueur);
-    AffichageCompteur();
-    vie = 5;
 
         //Initialisation de l'emplacement du vaisseau
     element[0].x = 1;
     element[0].y = tab_parametres[0] - 5;
     element[0].init = 1;
  
-    element[1].init = 1;    //Boss (non implémenter)
+    element[1].init = 0;    //Boss (non implémenter)
 
 
     while (vie != 0)
@@ -55,7 +56,16 @@ void Jouer()
         GestionEff(jeu, element, compteur);  //efface les éléments déplacés de la boucle precédente
 
         if (clavier == 32) //la touche espace est pressée
-            Pause();
+        {
+            int val_pause = Pause();
+            if (val_pause == -1)
+            {
+                clear();
+                delwin(jeu);
+                refresh();
+                return;
+            }
+        }
 
         GestionMvElem(clavier, element, compteur, i);
         GestionAff(jeu, element, compteur, i);
@@ -68,35 +78,91 @@ void Jouer()
 
 
         if ((compteur%100) == 0)
+        {
             i++;
-        else if (i <! 75)
-            i = 2;
+            if ((element[1].init != 1) /*&& (effetJoueur != -1)*/)  //Augmentation du score si le boss n'apparait pas (ou si le joueur n'est pas touché par un ennemi => not implmented yet)
+                score++;
+            if (i >= 50)
+                i = 2;
+        }
+        
         
 
         usleep(10000);
     }
 }
 
-void EntrerPseudo(score joueur[11])
+int DebutPartie(score joueur[11])
 {
-    char pseudo;
-    echo();
-    printw("Saisissez votre pseudo : ");
-    scanw("%c",&pseudo);
-    clear();
-    noecho();
-    for (int j=0;j<11;j++)
-    {
-        if (joueur[j].pseudo!=0)
-            joueur[j].pseudo=pseudo;
+    int clavier;   //Récupère la saisie clavier
+    char pseudo;    //Récupère le pseudo
+    int selection_vie = 5;  //Nombre de vies selectionnées (entre 1 et 5, 5 par défaut)
+    int modif = 1;  //Désigne le réglage a modifier (1: pseudo, 2 : nombre de vie)
 
+
+    WINDOW *DebutPartie = newwin(tab_parametres[0], tab_parametres[1], 0, 0);   //Fenetre dans laquelle sera affiché le choix du pseudo et du nombre de vie
+
+    keypad(DebutPartie, TRUE);
+    curs_set(TRUE);
+    while (1)
+    {
+        switch (modif)
+        {
+            case 1:
+                echo();
+                move((tab_parametres[0] / 4) + 1, (tab_parametres[1] / 2) - (25 / 2));  //Déplace et efface l'éventuel nom précédent en cas d'erreur
+                clrtoeol();
+                mvwprintw(DebutPartie, tab_parametres[0] / 4, (tab_parametres[1] / 2) - (25 / 2), "Saisissez votre pseudo : ");
+                mvwscanw(DebutPartie, (tab_parametres[0] / 4) + 1, (tab_parametres[1] / 2) - (25 / 2), "%c", &pseudo);
+                modif = 2;
+                noecho();
+                break;
+            case 2:
+                mvwprintw(DebutPartie, (tab_parametres[0] / 4) + 4, (tab_parametres[1] / 2) - (31 / 2), "Nombre de vie selectionnées : %d", selection_vie);
+                clavier = wgetch(DebutPartie);
+
+                switch (clavier)
+                {
+                case KEY_DOWN:
+                    selection_vie--;
+                    if (selection_vie < 1)
+                        selection_vie = 1;
+                    break;
+
+                case KEY_UP:
+                    selection_vie++;
+                    if (selection_vie > 5)
+                        selection_vie = 5;
+                    break;
+
+                case 27:    //touche esc pressé on retourne au menu
+                    curs_set(FALSE);
+                    return -1;
+                    break;
+
+                case 10:    //Entrée pressée, réglages de partie validés
+                    curs_set(FALSE);
+                    for (int j=0;j<11;j++)  //on stocke le pseudo dans le tableau des scores
+                    {
+                        if (joueur[j].pseudo == 0)
+                            joueur[j].pseudo = pseudo;    //On enregistre dans la première case libre (variable pseudo de la structure egal à zéro -> case vide)
+                    }
+                    clear();
+                    delwin(DebutPartie);
+                    return selection_vie;
+                    break;
+                }
+                break;
+
+        wrefresh(DebutPartie);       
+        }
     }
-    
 }
 
 
 void AffichageCompteur()
 {
+    int posx, posy; //Définit la position du compteur
 
         //Définition des chiffres du compteur
     char trois[5][7] = {" _____ ",
@@ -110,53 +176,88 @@ void AffichageCompteur()
                        "  __) |",
                        " / __/ ",
                        "|_____|"};
-    char un[5][7] ={" _ ",
+    char un[5][3] ={" _ ",
                     "/ |",
                     "| |",
                     "| |",
                     "|_|"} ; 
 
-    char zero[5][7]={"  ___ ", 
+    char zero[5][6]={"  ___ ", 
                      " / _ \\ ",
                      "| | | |",
                      "| |_| |",
                      " \\___/ "};   
     
-    //Affichage du compteur de démarrage
+
+        //Affichage du compteur de démarrage
+    //Définition de la position du chiffre
+    posy = (tab_parametres[0] / 2) - (5 / 2);
+    posx = (tab_parametres[1] / 2) - (7 / 2);
     for(int i=0;i<5;i++)
-    { for(int j=0;j<7;j++)
-        { printw("%c",trois[i][j]); }
-    printw("\n");
+    {
+        for(int j=0;j<7;j++)
+        {
+            mvprintw(posy, posx, "%c",trois[i][j]);
+            posx++;
+        }
+        posx = (tab_parametres[1] / 2) - (7 / 2);
+        posy++;
     }
     refresh();
     clear();
     sleep(1);
+
+    //Définition de la position du chiffre
+    posy = (tab_parametres[0] / 2) - (5 / 2);
+    posx = (tab_parametres[1] / 2) - (7 / 2);
     for(int i=0;i<5;i++)
-    { for(int j=0;j<7;j++)
-        { printw("%c",deux[i][j]); }
-    printw("\n");
+    {
+        for(int j=0;j<7;j++)
+        { 
+            mvprintw(posy, posx, "%c",deux[i][j]);
+            posx++;
+        }
+        posx = (tab_parametres[1] / 2) - (7 / 2);
+        posy++;
     }
     refresh();
     clear();
     sleep(1);
+
+    //Définition de la position du chiffre
+    posy = (tab_parametres[0] / 2) - (5 / 2);
+    posx = (tab_parametres[1] / 2) - (3 / 2);
     for(int i=0;i<5;i++)
-    { for(int j=0;j<7;j++)
-        { printw("%c",un[i][j]); }
-    printw("\n");
+    {
+        for(int j=0;j<3;j++)
+        {
+            mvprintw(posy, posx, "%c",un[i][j]);
+            posx++;
+        }
+        posx = (tab_parametres[1] / 2) - (3 / 2);
+        posy++;
     }
     refresh();
     clear();
     sleep(1);
     
+    //Définition de la position du chiffre
+    posy = (tab_parametres[0] / 2) - (5 / 2);
+    posx = (tab_parametres[1] / 2) - (6 / 2);
     for(int i=0;i<5;i++)
-    { for(int j=0;j<7;j++)
-        { printw("%c",zero[i][j]); }
-    printw("\n");
+    {
+        for(int j=0;j<6;j++)
+        {
+            mvprintw(posy, posx, "%c",zero[i][j]);
+            posx++;
+        }
+        posx = (tab_parametres[1] / 2) - (6 / 2);
+        posy++;
     }
     refresh();
     clear();
-    sleep(1);
     refresh();
+    sleep(1);
 }
 
 
@@ -164,7 +265,6 @@ void MajAffInterface(int vie, int score, int effetJoueur)
 {
     mvprintw(0,0, "Vie(s) : %d", vie);
     mvprintw(0,tab_parametres[1] - 12, "Score : %d", score);
-    mvprintw(tab_parametres[0], 0, "Bonus");
     attron(A_DIM);
     mvprintw(tab_parametres[0] - 1, (tab_parametres[1] / 2) - 15, "CANON DESACTIVE");
     attroff(A_DIM);
@@ -189,7 +289,7 @@ void MajAffInterface(int vie, int score, int effetJoueur)
 
 
 
-void Pause()
+int Pause()
 {
     int compteur_pause=0;   //Permet de confirmer la sortie du jeu
     mvprintw(0, (tab_parametres[1] / 2) - (5/2), "PAUSE");
@@ -200,15 +300,12 @@ void Pause()
         {
             case 32:   //on stoppe la pause
                 mvprintw(0, (tab_parametres[1] / 2) - (5/2), "     ");
-                return;
+                return 0;
                 break;
             case 27:    //on demande a quitter le jeu (avec la touche esc)
                 compteur_pause++;
                 if (compteur_pause == 2)    //la demande est confirmée on quitte le jeu
-                {
-                    clear();
-                    ChoixMenuPrincipal();
-                }    
+                    return -1;
                 break;
         }
     }
@@ -216,7 +313,7 @@ void Pause()
 
 
 
-void initElem(data element[75], int i)
+void initElem(data element[50], int i)
 {
     if (element[i].init == 0)
     {
@@ -271,7 +368,7 @@ int Tirage()
 
 
 
-void GestionMvElem(int clavier, data element[75], int compteur, int i)
+void GestionMvElem(int clavier, data element[50], int compteur, int i)
 {
 
         // Modification de la position du vaisseau en fonction des entrees clavier
@@ -292,7 +389,7 @@ void GestionMvElem(int clavier, data element[75], int compteur, int i)
     if ((compteur%100) == 0)
     {
         initElem(element, i);
-        for (int j=2; j<75; j++)
+        for (int j=2; j<50; j++)
         {
             if (element[j].init == 1)
             {
@@ -319,7 +416,7 @@ void GestionAff(WINDOW *jeu, data element[], int compteur, int i)
 
     if ((compteur%100) == 0)
     {
-        for (int j=2; j<75; j++)
+        for (int j=2; j<50; j++)
         {
             if (element[j].init == 1)
             {
@@ -352,7 +449,7 @@ void GestionAff(WINDOW *jeu, data element[], int compteur, int i)
 
 
 
-void GestionEff(WINDOW *jeu, data element[75], int compteur)
+void GestionEff(WINDOW *jeu, data element[50], int compteur)
 {
         //Effacemement du vaisseau
     mvwprintw(jeu, element[0].y, element[0].x, " ");
@@ -360,7 +457,7 @@ void GestionEff(WINDOW *jeu, data element[75], int compteur)
 
     if ((compteur%100) == 0)
     {
-        for (int j=2; j<75; j++)
+        for (int j=2; j<50; j++)
         {
             if (element[j].init == 1);
             {
@@ -379,7 +476,7 @@ void GestionCollision(int *pointe_vie, int *pointe_effetJoueur, data element[], 
 {
     if ((compteur%100) == 0)
     {
-        for (int j=2; j<75; j++)
+        for (int j=2; j<50; j++)
         {
             if (element[j].init == 1)
             {

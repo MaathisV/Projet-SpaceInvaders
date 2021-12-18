@@ -24,12 +24,19 @@ struct score
 };
 
 
+/*FONCTION Regles() : Affiche les règles du jeu, les contrôles et autres informations (lore, etc)
+Entrées/Sorties : néant*/
+void Regles();
+
+
 /*FONCTION Jouer() : Démarre une partie, initialise l'interface et appelle les fonctions de déplacement et d'affichage
 Entrées/Sorties : néant*/
 void Jouer();
 
-/*Fonction EntrerPseudo(); qui demande le pseudo du jouer*/
-void EntrerPseudo(score joueur[11]);
+/*Fonction DebutPartie() : setup le début de partie en demandant le nom du joueur et le nombre de vie de départ
+Entrées/Sorties : joueur (tableau des scores)
+Sorties : selection_vie (retourne le nombre de vies sélectionnés par l'utilisateur)*/
+int DebutPartie(score joueur[11]);
 
 /* Fonction AffichageCompteur() : affiche le compteur de départ
 Entrées/Sorties : néant */
@@ -44,8 +51,8 @@ void MajAffInterface(int vie, int score, int effetJoueur);
 
 /*FONCTION Pause() : Met en pause l'exécution du programme
 Entrées : néant
-Sorties : néant */
-void Pause();
+Sorties : si ressort -1 alors quitte la partie */
+int Pause();
 
 
 /*Fontion Tirage() : Tire un nombre aléatoire qui détermine le prochain élement à apparaitre

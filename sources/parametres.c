@@ -13,25 +13,29 @@ void Fct_Parametres(int option)
     switch(option)
     {
         case 0:
-            ;
+            printw("couleurs");
+            clear();
             break;
-        case 1: printw("Règles");
+        case 1:
+            clear();
+            printw("son");
             break;
         case 2:
-            dim_terminal(tab_parametres);
-            ChoixMenuPrincipal(tab_parametres);
+            clear();
+            dim_terminal();
+            return;
             break;
-        case 3: printw("Scores");
+        case 3:
+            clear();
+            printw("Scores effacé");
+            int c = getch();
+            return;
             break;
-        case 4: 
-            break;
-        case 5:
-            ChoixMenuPrincipal(tab_parametres);
-            break;
-        default:
+        case 4:
+            clear();
             break;
     }
 }
 
 
-//"Changer les couleurs", "Activer/Désactiver les effets sonores", "Mettre à jour la taille du terminal","Réinitialiser les scores", "Rentrer un mot de passe", "Retour
+//"Changer les couleurs", "Activer/Désactiver les effets sonores", "Mettre à jour la taille du terminal","Réinitialiser les scores", "Retour
