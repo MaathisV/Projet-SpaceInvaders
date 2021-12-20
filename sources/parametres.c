@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../headers/parametres.h"
 #include "../headers/menus.h"
 #include "../headers/terminal.h"
@@ -42,8 +43,8 @@ void Fct_Parametres(int option)
 void ModifCouleurs()
 {
     char *design_elem[7] = {"Interface", "<[°]>", "BOSS", "XXXXX", "OOOOO", "m", "b"};
-    char *listmodif[16] = {"Changer la couleur de fond de l'interface", "Changer la couleur de texte de l'interface", "Changer la couleur de fond du joueur", "Changer la couleur de texte du joueur", "Changer la couleur de fond du boss", "Changer la couleur de texte du boss", "Changer la couleur de fond des ennemis", "Changer la couleur de texte des ennemis", "Changer la couleur de fond des pilules", "Changer la couleur de texte des pilules", "Changer la couleur de fond des malus", "Changer la couleur de texte des malus", "Changer la couleur de fond des bonus", "Changer la couleur de texte des bonus", "Couleurs par défaut", "Retour"};
-    WINDOW *fenModifCouleur = newwin(22, 48, (tab_parametres[0] / 2) - (22/2), (tab_parametres[1] / 2) - (48 / 2));
+    char *listmodif[16] = {"Changer la couleur de texte de l'interface", "Changer la couleur de fond de l'interface", "Changer la couleur de texte du joueur", "Changer la couleur de fond du joueur", "Changer la couleur de texte du boss", "Changer la couleur de fond du boss", "Changer la couleur de texte des ennemis", "Changer la couleur de fond des ennemis", "Changer la couleur de texte des pilules", "Changer la couleur de fond des pilules", "Changer la couleur de texte des malus", "Changer la couleur de fond des malus", "Changer la couleur de texte des bonus", "Changer la couleur de fond des bonus", "Couleurs par défaut", "Retour"};
+    WINDOW *fenModifCouleur = newwin(22, 48, (tab_parametres[0] / 3) - (22/2), (tab_parametres[1] / 2) - (48 / 2));
     wattron(fenModifCouleur,COLOR_PAIR(1)); 
     box(fenModifCouleur, 0, 0);
     refresh();
@@ -54,11 +55,11 @@ void ModifCouleurs()
     while(1)
     {
             //Affichage des éléments avec les couleurs choisies
-        color();    //
+        color();    //Appel de la fonction pour initialiser les nouvelles paires de couleurs
         for (int i=0; i<7; i++)
         {
             attron(COLOR_PAIR(i+1));
-            mvprintw(i, 0, design_elem[i]);
+            mvprintw((tab_parametres[0] / 3) + 15 + i, (tab_parametres[1]/2) - (strlen(design_elem[i]) / 2), design_elem[i]);
             attroff(COLOR_PAIR(i+1));
         }
         refresh();

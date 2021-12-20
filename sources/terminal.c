@@ -65,7 +65,7 @@ void DefautCouleurs()
 {
         //Dans l'ordre et deux par deux (fond puis texte) : interface, joueur, boss, ennemis, pilules, malus, bonus
     tab_parametres[3] = COLOR_BLACK;
-    tab_parametres[2] = /*COLOR_WHITE*/6;
+    tab_parametres[2] = COLOR_WHITE;
     tab_parametres[5] = COLOR_BLACK;
     tab_parametres[4] = COLOR_WHITE;
     tab_parametres[7] = COLOR_WHITE;
