@@ -11,6 +11,13 @@ Sorties : néant*/
 void Fct_Parametres(int option);
 
 
+/*Fonction ModifCouleurs() : permet de modifier les couleurs de fond et de caractères de tout les éléments du jeu, y compris l'interface
+Entrées/Sorties : néant */
 void ModifCouleurs();
+
+
+/*Fonction ModifDesign() : permet de modifier les caractères de chaque éléments du jeu (vaisseau joueur, BOSS, ennemis, pilules, malus, bonus)
+Entrées/Sorties : néant */
+void ModifDesign();
 
 #endif

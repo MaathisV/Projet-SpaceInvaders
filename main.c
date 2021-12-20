@@ -18,6 +18,7 @@ gcc -o projet main.c -lncurses
 
 int tab_parametres[50]; //Tableau contenant les paramètres du jeu
 score joueur[11];   //Tableau contenant le nom des joueurs et leurs meilleurs scores
+char *design_elem[7] = {"Interface", "<[°]>", "BOSS", "XXXXX", "OOOOO", "m", "b"};  //Elements du jeu
 
 
 int main()

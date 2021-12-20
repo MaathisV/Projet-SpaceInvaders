@@ -11,6 +11,7 @@
 
 extern int tab_parametres[50];
 extern score joueur[11];
+extern char *design_elem[7];
 
 void Jouer()
 {
@@ -113,8 +114,8 @@ int DebutPartie(score joueur[11])
                 echo();
                 move((tab_parametres[0] / 4) + 1, (tab_parametres[1] / 2) - (25 / 2));  //Déplace et efface l'éventuel nom précédent en cas d'erreur
                 clrtoeol();
-                mvwprintw(DebutPartie, tab_parametres[0] / 4, (tab_parametres[1] / 2) - (25 / 2), "Saisissez votre pseudo : ");
-                mvwscanw(DebutPartie, (tab_parametres[0] / 4) + 1, (tab_parametres[1] / 2) - (25 / 2), "%c", &pseudo);
+                mvwprintw(DebutPartie, tab_parametres[0] / 4, (tab_parametres[1] / 2) - (25 / 2), "Saisissez votre pseudo :");
+                mvwscanw(DebutPartie, (tab_parametres[0] / 4) + 1, (tab_parametres[1] / 2) - (24 / 2), "%c", &pseudo);
                 modif = 2;
                 noecho();
                 break;
@@ -413,11 +414,8 @@ void GestionMvElem(int clavier, data element[50], int compteur, int i)
 
 void GestionAff(WINDOW *jeu, data element[], int compteur, int i)
 {
-    char vaisseau[] = "<[°]>", pilule[] = "OOOOO", ennemi[] = "XXXXX", malus[] = "m", bonus[] = "b";
-
-
     wattron(jeu, COLOR_PAIR(2));
-    mvwprintw(jeu, element[0].y, element[0].x, vaisseau);  //affichage du vaisseau
+    mvwprintw(jeu, element[0].y, element[0].x, design_elem[1]);  //affichage du vaisseau
     wattroff(jeu, COLOR_PAIR(2));
 
 
@@ -433,28 +431,28 @@ void GestionAff(WINDOW *jeu, data element[], int compteur, int i)
                         //BOSS (a implanter)
                         //wattron(jeu, COLOR_PAIR(3));
                         //wattron(jeu, A_UNDERLINE)
-                        //mvwprintw();
+                        //mvwprintw(jeu, element[1].y, element[1].x, design_elem[2]);
                         //wattroff(jeu, A_UNDERLINE)
                         //wattroff(jeu, COLOR_PAIR(3));
                         break;
                     case 1:
                         wattron(jeu, COLOR_PAIR(7));
-                        mvwprintw(jeu, element[j].y, element[j].x, malus);
+                        mvwprintw(jeu, element[j].y, element[j].x, design_elem[5]); //Affichage malus
                         wattroff(jeu, COLOR_PAIR(7));
                         break;
                     case 2:
                         wattron(jeu, COLOR_PAIR(6));
-                        mvwprintw(jeu, element[j].y, element[j].x, bonus);
+                        mvwprintw(jeu, element[j].y, element[j].x, design_elem[6]); //Affichage bonus
                         wattroff(jeu, COLOR_PAIR(6));
                         break;
                     case 3:
                         wattron(jeu, COLOR_PAIR(5));
-                        mvwprintw(jeu, element[j].y, element[j].x, pilule);
+                        mvwprintw(jeu, element[j].y, element[j].x, design_elem[4]); //Affichage pilule
                         wattroff(jeu, COLOR_PAIR(5));
                         break;
                     case 4:
                         wattron(jeu, COLOR_PAIR(4));
-                        mvwprintw(jeu, element[j].y, element[j].x, ennemi);
+                        mvwprintw(jeu, element[j].y, element[j].x, design_elem[3]); //Affichage ennemi
                         wattroff(jeu, COLOR_PAIR(4));
                         break;
                 }
