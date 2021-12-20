@@ -10,4 +10,7 @@ Entrées : option (choix de l'utilisateur dans le menu des parametres)
 Sorties : néant*/
 void Fct_Parametres(int option);
 
+
+void ModifCouleurs();
+
 #endif

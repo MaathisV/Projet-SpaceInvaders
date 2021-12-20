@@ -6,12 +6,16 @@
 
 extern int tab_parametres[50];
 
-void color(int cT,int cF)
+void color()
 {
         //Initialisation des paires de couleurs
-    init_pair(1,cT,cF);
-    init_pair(2, 0, 15);
-    attron(COLOR_PAIR(1));
+    init_pair(1,tab_parametres[2],tab_parametres[3]);   //Couleurs de l'interface
+    init_pair(2,tab_parametres[4],tab_parametres[5]);   //Couleurs du joueur
+    init_pair(3,tab_parametres[6],tab_parametres[7]);   //Couleurs du BOSS
+    init_pair(4,tab_parametres[8],tab_parametres[9]);   //Couleurs des ennemis
+    init_pair(5,tab_parametres[10],tab_parametres[11]);   //Couleurs des pilules
+    init_pair(6,tab_parametres[12],tab_parametres[13]);   //Couleurs des malus
+    init_pair(7,tab_parametres[14],tab_parametres[15]);   //Couleurs des bonus
 }
 
 
@@ -46,6 +50,34 @@ void startscr()
     cbreak();
     curs_set(FALSE);
     noecho();
+}
+
+
+void InitTabs()
+{
+    dim_terminal();
+    DefautCouleurs();
+    color();
+}
+
+
+void DefautCouleurs()
+{
+        //Dans l'ordre et deux par deux (fond puis texte) : interface, joueur, boss, ennemis, pilules, malus, bonus
+    tab_parametres[3] = COLOR_BLACK;
+    tab_parametres[2] = /*COLOR_WHITE*/6;
+    tab_parametres[5] = COLOR_BLACK;
+    tab_parametres[4] = COLOR_WHITE;
+    tab_parametres[7] = COLOR_WHITE;
+    tab_parametres[6] = COLOR_BLACK;
+    tab_parametres[9] = COLOR_BLACK;
+    tab_parametres[8] = COLOR_WHITE;
+    tab_parametres[11] = COLOR_BLACK;
+    tab_parametres[10] = COLOR_WHITE;
+    tab_parametres[13] = COLOR_WHITE;
+    tab_parametres[12] = COLOR_BLACK;
+    tab_parametres[15] = COLOR_WHITE;
+    tab_parametres[14] = COLOR_BLACK;
 }
 
 

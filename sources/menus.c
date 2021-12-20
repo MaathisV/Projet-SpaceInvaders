@@ -31,8 +31,11 @@ int ChoixMenuPrincipal()
 
         //Création de la zone du menuPrincipal, avec bordure
     WINDOW *menuPr = newwin(9, long_info, 13, (tab_parametres[1] / 2)  - (long_info / 2));
+    wattron(menuPr,COLOR_PAIR(1)); 
     box(menuPr, 0, 0);
     keypad(menuPr, true);
+
+    //wattron(menuPr, COLOR_PAIR(1));
 
         //Affichage du titre
     for(int i=0;i<12;i++)
@@ -80,6 +83,7 @@ int ChoixMenuPrincipal()
                     select = 4;
                 break;
             case 10:    //Si Entrée est pressée
+                //wattroff(menuPr, COLOR_PAIR(1));
                 return select;  //Retourne le choix validé par l'utilisateur
                 break;
         }
@@ -101,8 +105,12 @@ int ChoixMenuParametres()
 
         //Création de la zone du menuPr, avec bordure
     WINDOW *menuPa = newwin(8, long_info, (tab_parametres[0] / 3), (tab_parametres[1] / 2) - (long_info / 2));
+    wattron(menuPa,COLOR_PAIR(1)); 
     box(menuPa, 0, 0);
     keypad(menuPa, true);
+
+    wattron(menuPa, COLOR_PAIR(1));
+
     mvprintw(0, (tab_parametres[1] / 2) - (long_titre / 2), titre);  //Affichage du nom de la l'affichage
     mvprintw(tab_parametres[0] / 3 + 9, (tab_parametres[1] / 2) - long_info / 2, info);
     refresh();
@@ -139,6 +147,7 @@ int ChoixMenuParametres()
                     select = 5;
                 break;
             case 10:    //Si Entrée est pressée
+                wattroff(menuPa, COLOR_PAIR(1));
                 return select;  //Retourne le choix validé par l'utilisateur
                 break;
         }

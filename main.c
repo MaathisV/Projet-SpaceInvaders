@@ -26,12 +26,12 @@ int main()
     int option; //choix du menu paramètres
     int choix = -1;
 
+    InitTabs(); //Initialise les différents tableaux de paramètres et de scores
 
-            //Récupération des dimensions du terminal
-    dim_terminal();
     
     while (choix != 4)
-    {   
+    {
+        wattron(stdscr,COLOR_PAIR(1));   
         choix = ChoixMenuPrincipal();
             //Affichage du menu et aiguillage
         switch(choix)
@@ -51,7 +51,7 @@ int main()
                 break;
             case 3: printw("Scores");
                 break;
-            case 4: printw("Quitter");
+            case 4: //Quitter le jeu
                 break;
             default:
                 break;

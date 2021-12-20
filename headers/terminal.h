@@ -6,8 +6,7 @@ Prototype des fonctions pour la mise en forme du terminal */
 #define HEADERS_TERMINAL
 
 /*Choix des couleurs de la police et de la fenêtre CONSOLE
-    cT correspond a la couleur du texte
-    cF correspond a la couleur de fond
+Dans init_pair() le premier argument correspond a la couleur de fond et le second a la couleur de texte
     Codes couleus :
         0: noir
         1: bleu fonce
@@ -25,7 +24,7 @@ Prototype des fonctions pour la mise en forme du terminal */
         13: rose fluo
         14: jaune fluo
         15: blanc               */
-void color(int cT,int cF);
+void color();
 
 
 /*Fonction qui récupère la touche pressée sans mettre en pause l'exécution
@@ -52,5 +51,15 @@ void startscr();
 Entrées : néant
 Sorties : néant */
 void dim_terminal();
+
+/*Fonction qui définit les couleurs du jeu à une certaine valeur
+Entrées/Sorties : néant*/ 
+void DefautCouleurs();
+
+
+/* Fonction d'initialisation du tableau des paramètres et du tableau des scores
+Entrées/Sorties : néant*/
+void InitTabs();
+
 
 #endif
