@@ -23,9 +23,14 @@ void Jouer()
     int clavier;    //Saisie utilisateur
     int pause;  //détermine l'état de la pause
     int compteur = 0;   //Compte le nombre d'itérations de la boucle de jeu
-    int i=2;    //
+    int i=2;    //Permet de controler l'itération (fais en sorte que le délai soit respecté)
     int score=0;
     //double long_sc = 8 + log(score) + 1;
+    int delai=100;  //Controle la vitesse des éléments (100 correspond à une seconde)
+    int *pointe_delai=&delai;    //Pointeur sur la variable delai
+    int duree=0;    //Compte le temps d'application d'un effet
+    int *pointe_duree=&duree;
+
 
     refresh();
     vie = DebutPartie(joueur);
@@ -57,7 +62,7 @@ void Jouer()
 
         GestionEff(jeu, element, compteur);  //efface les éléments déplacés de la boucle precédente
 
-        if (clavier == 32) //la touche espace est pressée
+        if (clavier == 27) //la touche es est pressée
         {
             int val_pause = Pause();
             if (val_pause == -1)
@@ -69,13 +74,13 @@ void Jouer()
             }
         }
 
-        GestionMvElem(clavier, element, compteur, i);
+        GestionMvElem(clavier, element, pointe_effetJoueur, compteur, i);
         GestionAff(jeu, element, compteur, i);
 
         wrefresh(jeu);
 
         GestionCollision(pointe_vie, pointe_effetJoueur, element, compteur);
-        //GestionEffetMalusBonus(effetJoueur)
+        GestionEffetMalusBonus(pointe_effetJoueur, pointe_delai, pointe_duree, compteur);
         MajAffInterface(vie, score, effetJoueur);
 
 
@@ -272,22 +277,34 @@ void MajAffInterface(int vie, int score, int effetJoueur)
     mvprintw(0,0, "Vie(s) : %d", vie);
     mvprintw(0,tab_parametres[1] - 12, "Score : %d", score);
     attron(A_DIM);
-    mvprintw(tab_parametres[0] - 1, (tab_parametres[1] / 2) - 15, "CANON DESACTIVE");
+    mvprintw(tab_parametres[0] - 1, (tab_parametres[1] / 2) - (15/2), "CANON DESACTIVE");
     attroff(A_DIM);
+    mvprintw(1,tab_parametres[1] - 12, "effet : %d", effetJoueur);
     switch (effetJoueur)
     {
-        case 10:
-            attron(A_STANDOUT);
-            mvprintw(tab_parametres[0] - 1, 0, "MALUS");
-            attroff(A_STANDOUT);
+        case 11:
+            attron(COLOR_PAIR(6));
+            mvprintw(tab_parametres[0] - 1, 0, "ACCELERATION");
+            attroff(COLOR_PAIR(6));
             break;
-        case 20:
-            attron(A_STANDOUT);
-            mvprintw(tab_parametres[0] - 1, 0, "MALUS");
-            attroff(A_STANDOUT);
+        case 12:
+            attron(COLOR_PAIR(6));
+            mvprintw(tab_parametres[0] - 1, 0, "INVERSION");
+            attroff(COLOR_PAIR(6));
             break;
-        default:
-            mvprintw(tab_parametres[0] - 1, 0, "        ");
+        case 21:
+            attron(COLOR_PAIR(7));
+            mvprintw(tab_parametres[0] - 1, 0, "INVICIBLE");
+            attroff(COLOR_PAIR(7));
+            break;
+        case 22:
+            mvprintw(tab_parametres[0] - 1, (tab_parametres[1] / 2) - (15/2), "               ");
+            attron(COLOR_PAIR(7));
+            mvprintw(tab_parametres[0] - 1, (tab_parametres[1] / 2) - 6, "CANON ACTIVE");
+            attroff(COLOR_PAIR(7));
+        case 0:
+            mvprintw(tab_parametres[0] - 1, 0, "            ");
+            break;
     }
 
     refresh();
@@ -304,11 +321,11 @@ int Pause()
         int saisie_pause  = b_getch();  //stoppe l'execution tout en recuperant les saisies clavier
         switch (saisie_pause)
         {
-            case 32:   //on stoppe la pause
+            case 27:   //on stoppe la pause
                 mvprintw(0, (tab_parametres[1] / 2) - (5/2), "     ");
                 return 0;
                 break;
-            case 27:    //on demande a quitter le jeu (avec la touche esc)
+            case 32:    //on demande a quitter le jeu (avec la touche espace)
                 compteur_pause++;
                 if (compteur_pause == 2)    //la demande est confirmée on quitte le jeu
                     return -1;
@@ -343,20 +360,20 @@ int Tirage()
 
     tirage = rand()%20;
 
-    if (tirage == 0)
+    if ((tirage == 0) || (tirage == 1))
         {
             element = 1;    //Un malus apparait
             //nb_malus++;
             nb_bonus = 0;
             nb_pilules = 0;
         }
-        else if (tirage == 1 && nb_bonus <= 3)
+        else if (((tirage == 2) || (tirage == 3)) && (nb_bonus <= 3))
         {
             element = 2; //un bonus apparait
             nb_bonus++;
             nb_pilules = 0;
         }
-        else if ((tirage >= 2 && tirage <= 4) && nb_pilules <= 4)
+        else if ((tirage >= 4 && tirage <= 8) && nb_pilules <= 4)
         {
             element = 3;    //une pilule apparait
             nb_pilules++;
@@ -374,22 +391,45 @@ int Tirage()
 
 
 
-void GestionMvElem(int clavier, data element[50], int compteur, int i)
+void GestionMvElem(int clavier, data element[50], int *pointe_effetJoueur, int compteur, int i)
 {
 
         // Modification de la position du vaisseau en fonction des entrees clavier
     switch (clavier)
     {
-        case 'q':
-            element[0].x--;
-            if (element[0].x == 0)
-                element[0].x = 1;
+        case 'q':   //Bouge le vaisseau à gauche
+            if (*pointe_effetJoueur == 12)   //Sauf si le malus d'inversion est activé
+            {
+                element[0].x++;
+                if (element[0].x > tab_parametres[1] - 1 - 6)
+                    element[0].x = tab_parametres[1] - 1 - 6;    
+            }
+            else
+            {
+                element[0].x--;
+                if (element[0].x == 0)
+                    element[0].x = 1;
+            }
             break;
-        case 'd':
-            element[0].x++;
+
+        case 'd':   //Bouge le vaisseau à droite
+            if (*pointe_effetJoueur == 12)  //Sauf si le malus d'inversion est activé
+            {
+                element[0].x--;
+                if (element[0].x == 0)
+                    element[0].x = 1;
+            }
+            else
+            {
+                element[0].x++;
             if (element[0].x > tab_parametres[1] - 1 - 6)
                 element[0].x = tab_parametres[1] - 1 - 6;
+            }
             break;
+
+        case 32:    //Appuie sur la touche espace, déclenchement du tir de canon
+            if (*pointe_effetJoueur == 22)  //Seulement si le bonus à été accordé
+                mvprintw(1, 1, "pew pew");
     }
 
     if ((compteur%100) == 0)
@@ -399,7 +439,6 @@ void GestionMvElem(int clavier, data element[50], int compteur, int i)
         {
             if (element[j].init == 1)
             {
-                mvprintw(12, 2, "debug j init mv = %d", j);
                 refresh();
                 if (element[j].y > (tab_parametres[0] - 6))
                     element[j].init = 0;
@@ -494,7 +533,7 @@ void GestionCollision(int *pointe_vie, int *pointe_effetJoueur, data element[], 
         {
             if (element[j].init == 1)
             {
-                if ((element[j].type == 4) && (element[j].y == element[0].y) && ((element[j].x < element[0].x + 5) && (element[j].x > element[0].x - 5))) //Gestion des collision pour les ennemis
+                if ((*pointe_effetJoueur != 21) && (element[j].type == 4) && (element[j].y == element[0].y) && ((element[j].x < element[0].x + 5) && (element[j].x > element[0].x - 5))) //Gestion des collision pour les ennemis
                 {
                     *pointe_vie = *pointe_vie - 1;
                     element[j].init = 0;    //Désinitialisation de l'élément
@@ -506,17 +545,67 @@ void GestionCollision(int *pointe_vie, int *pointe_effetJoueur, data element[], 
                     element[j].init = 0;    //Désinitialisation de l'élément
                 }
 
-                else if ((*pointe_effetJoueur == 0) && (element[j].type == 1) && (element[j].y == element[0].y) && (element[j].x + 5 < element[0].x)) //Gestion des collisions pour les malus
+                else if ((*pointe_effetJoueur == 0) && (element[j].type == 1) && (element[j].y == element[0].y) && (element[j].x >= element[0].x) && (element[j].x <= element[0].x + 5)) //Gestion des collisions pour les malus
                 {
-                    *pointe_effetJoueur = 10;
+                    *pointe_effetJoueur = (rand()%2) + 11;  //Tirage aléatoire entre les deux malus présentement implanté (acceleration et inversion)
                     element[j].init = 0;    //Désinitialisation de l'élément
                 }
-                else if ((*pointe_effetJoueur == 0) && (element[j].type == 2) && (element[j].y == element[0].y) && (element[j].x + 5 < element[0].x)) //Gestion des collisions pour bonus malus
+                else if ((*pointe_effetJoueur == 0) && (element[j].type == 2) && (element[j].y == element[0].y) && (element[j].x >= element[0].x) && (element[j].x <= element[0].x + 5)) //Gestion des collisions pour les bonus
                 {
-                    *pointe_effetJoueur = 20;
+                    *pointe_effetJoueur = (rand()%2) + 21;  //Tirage aléatoire entre les deux bonus présentement implanté (invincibilité et canon)
                     element[j].init = 0;    //Désinitialisation de l'élément
                 }
             }
         }
+    }
+}
+
+
+
+void GestionEffetMalusBonus(int *pointe_effetJoueur, int *pointe_delai, int *pointe_duree, int compteur)
+{
+        //Debug affichage des booléens des conditions car 
+    mvprintw(3,3, "%d", (*pointe_duree <= 5));
+    mvprintw(4, 4, "%d", ((compteur%100) == 0));
+    switch (*pointe_effetJoueur)
+    {
+        case 11:    //Acceleration
+            *pointe_delai = *pointe_delai / 2;
+            *pointe_effetJoueur = 19;   //Définit à 19 pour éviter de réduire le délai en boucle
+            if (((compteur%100) == 0) && (*pointe_duree <= 5))
+                *pointe_duree++;
+            else if (*pointe_duree > 5)
+            {
+                *pointe_delai = *pointe_delai * 2;  //Réapplique l'ancienne vitesse
+                *pointe_effetJoueur = 0;    //Plus aucun effet n'est appliqué
+            }
+            break;
+        
+        case 12:    //Inversion des commandes du vaisseau (voir dans GestionMvElem)
+            if (((compteur%100) == 0) && (*pointe_duree <= 15))
+                *pointe_duree++;
+            else if (*pointe_duree > 15)
+                *pointe_effetJoueur = 0;    //Plus aucun effet n'est appliqué
+            break;
+
+        case 21:    //Invincibilité aux ennemis (voir dans GestionCollision)
+            if (((compteur%100) == 0) && (*pointe_duree <= 10))
+                *pointe_duree++;
+            else if (*pointe_duree > 10)
+                *pointe_effetJoueur = 0;    //Plus aucun effet n'est appliqué
+            break;
+        
+        case 22:    //Canon activé
+            if (((compteur%100) == 0) && (*pointe_duree <= 30))
+                *pointe_duree++;
+            else if (*pointe_duree > 30)
+                *pointe_effetJoueur = 0;    //Plus aucun effet n'est appliqué
+            break;
+
+        case 0: //Aucun effet n'est appliqué
+            *pointe_duree = 0;  //Alors remise à zéro du temps d'application d'un effet
+            if (compteur%100 == 0)
+                mvprintw(1,1, "hello");
+            break;
     }
 }

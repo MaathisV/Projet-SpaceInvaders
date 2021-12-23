@@ -33,10 +33,12 @@ void Regles();
 Entrées/Sorties : néant*/
 void Jouer();
 
+
 /*Fonction DebutPartie() : setup le début de partie en demandant le nom du joueur et le nombre de vie de départ
 Entrées/Sorties : joueur (tableau des scores)
 Sorties : selection_vie (retourne le nombre de vies sélectionnés par l'utilisateur)*/
 int DebutPartie(score joueur[11]);
+
 
 /* Fonction AffichageCompteur() : affiche le compteur de départ
 Entrées/Sorties : néant */
@@ -64,28 +66,28 @@ int Tirage();
 /*Fonction initElem() : initialise les données (position et type) de chaque élement qui n'est pas initialisé
 Entrées : i (indice de la case du tableau element)
 Entrées/Sorties : element (tableau contenant les données de chaque élements) */
-void initElem(data element[75], int i);
+void initElem(data element[50], int i);
 
 
 /*FONCTION GestionMvElem() : Gère les déplacements des élements ; modifie les valeurs d'abscisses et d'ordonnées
-Entrées : clavier (récupère la touche pressé par l'utilisateur), compteur (compte le nombre d'itération de la boucle de jeu), i (indice de la case du tableau element)
+Entrées : clavier (récupère la touche pressé par l'utilisateur), *pointe_effetJoueur (pointe effetJoueur pour savoir si le malus d'inversion est actif), compteur (compte le nombre d'itération de la boucle de jeu), i (indice de la case du tableau element)
 Entrées/Sorties : element (tableau contenant les données de chaque élements)
 Sorties : néant */
-void GestionMvElem(int clavier, data element[75], int compteur, int i);
+void GestionMvElem(int clavier, data element[50], int *pointe_effetJoueur, int compteur, int i);
 
 
 /*FONCTION GestionAff() : Gère l'affichage des élements du jeu
 Entrées : jeu (fenêtre ncurses dans laquelle sera affichée les éléments), compteur (compte le nombre d'itération de la boucle de jeu)
 Entrées/Sorties : element (tableau contenant les données de chaque élements)
 Sorties : néant */
-void GestionAff(WINDOW *jeu, data element[75], int compteur, int i);
+void GestionAff(WINDOW *jeu, data element[50], int compteur, int i);
 
 
 /*FONCTION GestionEff() : Gère l'effacement des élements du jeu
 Entrées : jeu (fenêtre ncurses dans laquelle sera affichée les éléments), compteur (compte le nombre d'itérations de la boucle de jeu)
 Entrées/Sorties : element (tableau contenant les données de chaque élements)
 Sorties : néant */
-void GestionEff(WINDOW *jeu, data element[75], int compteur);
+void GestionEff(WINDOW *jeu, data element[50], int compteur);
 
 
 /* Fonction GestionCollision() : Gère les différentes collisions vaisseau/éléments
@@ -93,6 +95,12 @@ Entrées : *pointe_vie (pointeur sur la variable vie), *pointe_effetJoueur (poin
 Entrées/Sorties : element (tableau contenant les données de chaque élements)
 Sorties : néant */
 void GestionCollision(int *pointe_vie, int *pointe_effetJoueur, data element[], int compteur);
+
+
+/* Fonction GestionEffetMalusBonus() : Gere les effets des malus et des bonus (durées des effets, effet appliqué)
+Entrées : *pointe_effetJoueur (pointeur sur la variable effetJoueur, permet de déterminer l'effet à appliquer), *pointe_delai (pointeur sur la variable delai, permet de modifier la vitesse des éléments), *pointe_duree (pointeur de la variable duree), compteur (compte le nombre d'itérations de la boucle de jeu)
+Sorties : néant */
+void GestionEffetMalusBonus(int *pointe_effetJoueur, int *pointe_delai, int *pointe_duree, int compteur);
 
 
 #endif
