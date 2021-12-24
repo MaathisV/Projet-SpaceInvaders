@@ -11,7 +11,7 @@ struct data
 {
     int x;  //Abscisse x de l'élement
     int y;  //Ordonnées y de l'élément
-    int type;
+    int type;   //Determine ce qu'est l'élément (1: malus, 2: bonus, 3: pilule, 4: ennemi, 5: tir ami, 6: tir ennemi)
     int init;   //Etat de l'élément (initialisé ou non)
 };
 
@@ -63,38 +63,38 @@ Sorties : element (désigne l'élément à apparaitre) */
 int Tirage();
 
 
-/*Fonction initElem() : initialise les données (position et type) de chaque élement qui n'est pas initialisé
+/*Fonction initElem() : initialise les données (position et type) de chaque élement qui n'est pas initialisé (les éléments sont malus, bonus, pilules et ennemis)
 Entrées : i (indice de la case du tableau element)
 Entrées/Sorties : element (tableau contenant les données de chaque élements) */
-void initElem(data element[50], int i);
+void initElem(data element[100], int i);
 
 
 /*FONCTION GestionMvElem() : Gère les déplacements des élements ; modifie les valeurs d'abscisses et d'ordonnées
-Entrées : clavier (récupère la touche pressé par l'utilisateur), *pointe_effetJoueur (pointe effetJoueur pour savoir si le malus d'inversion est actif), compteur (compte le nombre d'itération de la boucle de jeu), i (indice de la case du tableau element)
+Entrées : clavier (récupère la touche pressé par l'utilisateur), *pointe_effetJoueur (pointe effetJoueur pour savoir si le malus d'inversion est actif), *pointe_derniertir (pointe derniertir pour savoir si le délai entre deux tirs est écoulé), compteur (compte le nombre d'itération de la boucle de jeu), i (indice de la case du tableau element)
 Entrées/Sorties : element (tableau contenant les données de chaque élements)
 Sorties : néant */
-void GestionMvElem(int clavier, data element[50], int *pointe_effetJoueur, int compteur, int i);
+void GestionMvElem(int clavier, data element[100], int *pointe_effetJoueur, int *pointe_derniertir, int compteur, int delai, int i);
 
 
 /*FONCTION GestionAff() : Gère l'affichage des élements du jeu
-Entrées : jeu (fenêtre ncurses dans laquelle sera affichée les éléments), compteur (compte le nombre d'itération de la boucle de jeu)
+Entrées : jeu (fenêtre ncurses dans laquelle sera affichée les éléments), compteur (compte le nombre d'itération de la boucle de jeu), delai (controle les vitesse des éléments)
 Entrées/Sorties : element (tableau contenant les données de chaque élements)
 Sorties : néant */
-void GestionAff(WINDOW *jeu, data element[50], int compteur, int i);
+void GestionAff(WINDOW *jeu, data element[100], int compteur, int delai);
 
 
 /*FONCTION GestionEff() : Gère l'effacement des élements du jeu
-Entrées : jeu (fenêtre ncurses dans laquelle sera affichée les éléments), compteur (compte le nombre d'itérations de la boucle de jeu)
+Entrées : jeu (fenêtre ncurses dans laquelle sera affichée les éléments), compteur (compte le nombre d'itérations de la boucle de jeu), delai (controle les vitesse des éléments)
 Entrées/Sorties : element (tableau contenant les données de chaque élements)
 Sorties : néant */
-void GestionEff(WINDOW *jeu, data element[50], int compteur);
+void GestionEff(WINDOW *jeu, data element[100], int compteur, int delai);
 
 
 /* Fonction GestionCollision() : Gère les différentes collisions vaisseau/éléments
-Entrées : *pointe_vie (pointeur sur la variable vie), *pointe_effetJoueur (pointeur, désigne l'état positif ou négatif affecté au vaisseau), compteur (nombre d'itération de la boucle de jeu)
+Entrées : *pointe_vie (pointeur sur la variable vie), *pointe_effetJoueur (pointeur, désigne l'état positif ou négatif affecté au vaisseau), *pointe_score (pointe la variable score), compteur (nombre d'itération de la boucle de jeu), delai (controle les vitesse des éléments)
 Entrées/Sorties : element (tableau contenant les données de chaque élements)
 Sorties : néant */
-void GestionCollision(int *pointe_vie, int *pointe_effetJoueur, data element[], int compteur);
+void GestionCollision(int *pointe_vie, int *pointe_effetJoueur, int *pointe_score, data element[100], int compteur, int delai);
 
 
 /* Fonction GestionEffetMalusBonus() : Gere les effets des malus et des bonus (durées des effets, effet appliqué)
