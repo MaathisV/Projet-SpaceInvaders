@@ -92,7 +92,7 @@ void Jouer()
             i++;
             if ((element[1].init != 1) /*&& (effetJoueur != -1)*/)  //Augmentation du score si le boss n'apparait pas (ou si le joueur n'est pas touché par un ennemi => not implmented yet)
                 score++;
-            if (i >= 30)
+            if (i >= 80)
                 i = 2;
         }
         
@@ -431,13 +431,13 @@ void GestionMvElem(int clavier, data element[100], int *pointe_effetJoueur, int 
             break;
 
         case 32:    //Appuie sur la touche espace, déclenchement du tir de canon
-            if ((*pointe_effetJoueur == 22) && ((compteur - *pointe_derniertir) >= 50))  //Seulement si le bonus à été accordé et si le cooldown de 0.5s est passé
+            if ((*pointe_effetJoueur == 22) && ((compteur - *pointe_derniertir) >= 50) && (element[80].init == 0))  //Seulement si le bonus à été accordé et si le cooldown de 0.5s est passé et que le précédent tir a disparu de l'écran
             {
                 *pointe_derniertir = compteur;
-                element[30].init = 1;
-                element[30].type = 5;
-                element[30].x = element[0].x + 2;
-                element[30].y = element[0].y + 1;
+                element[80].init = 1;
+                element[80].type = 5;
+                element[80].x = element[0].x + 2;
+                element[80].y = element[0].y + 1;
             }
             break;
     }
@@ -467,7 +467,7 @@ void GestionMvElem(int clavier, data element[100], int *pointe_effetJoueur, int 
         }
         else if ((element[j].init == 1) && (element[j].type == 5))   //Si l'élément est initialisé et est un tir ami 
         {
-            if (element[j].y < (3)) //Si il atteint le bord inférieur de la fenetre de jeu
+            if (element[j].y <= 3) //Si il atteint le bord supérieur de la fenetre de jeu
                 element[j].init = 0;    //Désinitialisé/Disparait
             else
                 element[j].y--; //Il monte
