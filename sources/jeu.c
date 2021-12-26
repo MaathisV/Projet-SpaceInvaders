@@ -15,7 +15,7 @@ extern char *design_elem[7];
 
 void Jouer()
 {
-    data element[100] = {0}; //Définition des données d'un élément (coordonnées et type) avec initialisation à zéro
+    data element[160] = {0}; //Définition des données d'un élément (coordonnées et type) avec initialisation à zéro
     int vie;    //nb de vie du joueur
     int *pointe_vie = &vie;    //Pointe la variable vie
     int effetJoueur=0; //Désigne le malus ou bonus qui affecte le joueur (0: rien, 11: acceleration des éléments, 12: inversion des commandes du vaisseau, 21: invicibilité, 22: canon activé)
@@ -24,15 +24,20 @@ void Jouer()
     int pause;  //détermine l'état de la pause
     int compteur = 0;   //Compte le nombre d'itérations de la boucle de jeu
     int i=2;    //Permet de controler l'itération (fais en sorte que le délai soit respecté)
+    int *pointe_i=&i;   //Pointeur sur i
     int score=0;
     int *pointe_score=&score;    //Pointeur sur la variable score
     //double long_sc = 8 + log(score) + 1;
     int delai=100;  //Controle la vitesse des éléments (100 correspond à une seconde)
     int *pointe_delai=&delai;    //Pointeur sur la variable delai
     int duree=0;    //Compte le temps d'application d'un effet
-    int *pointe_duree=&duree;
-    int derniertir=0;   //Stocke la valeur de compteur lors du dernier tir
+    int *pointe_duree=&duree;   //Pointeur sur la variable duree
+    int derniertir=0;   //Stocke la valeur de compteur lors du dernier tir joueur
     int *pointe_derniertir=&derniertir; //Pointeur sur la variable derniertir
+    int compboss; //Stocke la valeur compteur au moment de l'apparition du boss
+    int *pointe_compboss=&compboss;  //Pointeur sur compboss
+    int boss=0; //Variable permettant de compter le nombre de boss vaincu depuis le début de la partie
+
 
 
     refresh();
@@ -53,10 +58,10 @@ void Jouer()
     element[0].y = tab_parametres[0] - 5;
     element[0].init = 1;
  
-    element[1].init = 0;    //Boss (non implémenter)
+    element[1].init = 0;    //Boss (non initialisé au départ)
 
 
-    while (vie != 0)
+    while (vie > 0)
     {
         compteur++;
         
@@ -77,27 +82,26 @@ void Jouer()
             }
         }
 
-        GestionMvElem(clavier, element, pointe_effetJoueur, pointe_derniertir, compteur, delai, i);
-        GestionAff(jeu, element, compteur, i);
+        GestionMvElem(clavier, element, pointe_effetJoueur, pointe_derniertir, compteur, delai, i); //Met à jour la position de tous les éléments visibles à l'écran
+        GestionAff(jeu, element, compteur, i);  //Affiche les éléments à leur positions
 
         wrefresh(jeu);
 
-        GestionCollision(pointe_vie, pointe_effetJoueur, pointe_score, element, compteur, delai);
-        GestionEffetMalusBonus(pointe_effetJoueur, pointe_delai, pointe_duree, compteur);
-        MajAffInterface(vie, score, effetJoueur);
+        GestionCollision(pointe_vie, pointe_effetJoueur, pointe_score, element, compteur, delai);   //Modifie les variables concernés lors de la detection d'une collision entre éléments
+        GestionEffetMalusBonus(pointe_effetJoueur, pointe_delai, pointe_duree, compteur);   //Contrôle et applique les effets des malus et des bonus selon une durée déterminée dans le programme
+        MajAffInterface(vie, score, effetJoueur);   //Actualise les données affichées autour de la fenêtre de jeu
 
+        GestionApparitionBoss(pointe_effetJoueur, pointe_score, pointe_delai, pointe_compboss, compteur, element);
 
-        if ((compteur%100) == 0)
+        if (((compteur%100) == 0) && (element[1].init == 0))    //Si le délai est respecté et que le boss n'est pas initialisé
         {
             i++;
-            if ((element[1].init != 1) /*&& (effetJoueur != -1)*/)  //Augmentation du score si le boss n'apparait pas (ou si le joueur n'est pas touché par un ennemi => not implmented yet)
-                score++;
+            score++;    //Augmentation du score si le joueur n'est pas touché par un ennemi => not implmented yet)
             if (i >= 80)
                 i = 2;
         }
         
         
-
         usleep(10000);
     }
 }
@@ -196,7 +200,7 @@ void AffichageCompteur()
                     "| |",
                     "|_|"} ; 
 
-    char zero[5][6]={"  ___ ", 
+    char zero[5][7]={"  ___ ", 
                      " / _ \\ ",
                      "| | | |",
                      "| |_| |",
@@ -339,7 +343,7 @@ int Pause()
 
 
 
-void initElem(data element[100], int i)
+void initElem(data element[160], int i)
 {
     if (element[i].init == 0)
     {
@@ -394,8 +398,9 @@ int Tirage()
 
 
 
-void GestionMvElem(int clavier, data element[100], int *pointe_effetJoueur, int *pointe_derniertir, int compteur, int delai, int i)
+void GestionMvElem(int clavier, data element[160], int *pointe_effetJoueur, int *pointe_derniertir, int compteur, int delai, int i)
 {
+    bool boucle_tir;    //Permet de contrôler la sortie de la boucle d'initialisation d'un tir
 
         // Modification de la position du vaisseau en fonction des entrees clavier
     switch (clavier)
@@ -404,8 +409,8 @@ void GestionMvElem(int clavier, data element[100], int *pointe_effetJoueur, int 
             if (*pointe_effetJoueur == 12)   //Sauf si le malus d'inversion est activé
             {
                 element[0].x++;
-                if (element[0].x > tab_parametres[1] - 1 - 6)
-                    element[0].x = tab_parametres[1] - 1 - 6;    
+                if (element[0].x > tab_parametres[1] - 2 - 5)   //Retranche 2 à cause des bords de l'écran et retranche 5 à cause de la taille du vaisseau
+                    element[0].x = tab_parametres[1] - 2 - 5;    
             }
             else
             {
@@ -425,26 +430,79 @@ void GestionMvElem(int clavier, data element[100], int *pointe_effetJoueur, int 
             else
             {
                 element[0].x++;
-            if (element[0].x > tab_parametres[1] - 1 - 6)
-                element[0].x = tab_parametres[1] - 1 - 6;
+            if (element[0].x > tab_parametres[1] - 2 - 5)
+                element[0].x = tab_parametres[1] - 2 - 5;
             }
             break;
 
         case 32:    //Appuie sur la touche espace, déclenchement du tir de canon
-            if ((*pointe_effetJoueur == 22) && ((compteur - *pointe_derniertir) >= 50) && (element[80].init == 0))  //Seulement si le bonus à été accordé et si le cooldown de 0.5s est passé et que le précédent tir a disparu de l'écran
+            if ((*pointe_effetJoueur == 22) && ((compteur - *pointe_derniertir) >= 50))  //Seulement si le bonus à été accordé et si le cooldown de 0.5s est passé
             {
                 *pointe_derniertir = compteur;
-                element[80].init = 1;
-                element[80].type = 5;
-                element[80].x = element[0].x + 2;
-                element[80].y = element[0].y + 1;
+                boucle_tir = TRUE;
+                for (int k=80; k<160 && boucle_tir; k++)
+                {
+                    if (element[k].init == 0)   //balayage des cases pour les tirs, arrêt du balayage à la première case non initialisé trouvée
+                    {
+                        element[k].init = 1;
+                        element[k].type = 5;
+                        element[k].x = element[0].x + 2;
+                        element[k].y = element[0].y - 1;
+                        boucle_tir = FALSE;
+                    }
+                }
             }
             break;
     }
 
-    if ((compteur%100) == 0)
+    if ((element[1].init == 1) && ((compteur%25 == 0)))   //Si le boss est initialisé, il peut bouger (mais moins vite que le joueur)
     {
-        initElem(element, i);
+            //Les mouvements du boss sont calés sur ceux du joueur, le boss va tenter de suivre le joueur
+        if (element[1].x > element[0].x)
+        {
+            element[1].x--;
+            if (element[1].x == 0)
+                element[1].x = 1;
+        }
+        else if (element[1].x < element[0].x)
+        {
+            element[1].x++;
+            if (element[1].x > tab_parametres[1] - 2 - 7)
+                element[1].x = tab_parametres[1] - 2 - 7;
+        }
+
+        if (compteur%100 == 0)  //Il peut tirer deux tirs en fonction du délai
+        {
+            boucle_tir = TRUE;
+            for (int k=80; k<160 && boucle_tir; k++)    //Balayage pour le premier tir
+            {
+                if (element[k].init == 0)   //balayage des cases pour les tirs, arrêt du balayage à la première case non initialisé trouvée
+                {
+                    element[k].init = 1;
+                    element[k].type = 6;
+                    element[k].x = element[1].x + 2;
+                    element[k].y = element[1].y + 1;
+                    boucle_tir = FALSE;
+                }
+            }
+            boucle_tir = TRUE;
+            for (int k=80; k<160 && boucle_tir; k++)    //Balayage pour le second tir
+            {
+                if (element[k].init == 0)   //balayage des cases pour les tirs, arrêt du balayage à la première case non initialisé trouvée
+                {
+                    element[k].init = 1;
+                    element[k].type = 6;
+                    element[k].x = element[1].x + 4;
+                    element[k].y = element[1].y + 1;
+                    boucle_tir = FALSE;
+                }
+            }
+        }
+    }
+
+    if ((compteur%100) == 0)
+    {   if (element[1].init == 0)   //On initialise aucun autre éléments tant que le boss est initialisé
+            initElem(element, i);
         for (int j=2; j<80; j++)    //On passe que sur les éléments qui ont un délai à respecter (pilules, ennemis, bonus, malus)
         {
             if (element[j].init == 1)
@@ -456,21 +514,25 @@ void GestionMvElem(int clavier, data element[100], int *pointe_effetJoueur, int 
             }
         }
     }
-    for (int j=80; j<100; j++) 
+
+    if ((compteur%25) == 0) //Contrôle de la vitesse de déplacement des tirs ami et ennemi
     {
-        if ((element[j].init == 1) && (element[j].type == 6))   //Si l'élément est initialisé et est un tir ennemi
+        for (int j=80; j<160; j++) 
         {
-            if (element[j].y > (tab_parametres[0] - 6)) //Si il atteint le bord inférieur de la fenetre de jeu
-                element[j].init = 0;    //Désinitialisé/Disparait
-            else
-                element[j].y++; //Il descends
-        }
-        else if ((element[j].init == 1) && (element[j].type == 5))   //Si l'élément est initialisé et est un tir ami 
-        {
-            if (element[j].y <= 3) //Si il atteint le bord supérieur de la fenetre de jeu
-                element[j].init = 0;    //Désinitialisé/Disparait
-            else
-                element[j].y--; //Il monte
+            if ((element[j].init == 1) && (element[j].type == 6))   //Si l'élément est initialisé et est un tir ennemi
+            {
+                if (element[j].y > (tab_parametres[0] - 6)) //Si il atteint le bord inférieur de la fenetre de jeu
+                    element[j].init = 0;    //Désinitialisé/Disparait
+                else
+                    element[j].y++; //Il descends
+            }
+            else if ((element[j].init == 1) && (element[j].type == 5))   //Si l'élément est initialisé et est un tir ami 
+            {
+                if (element[j].y <= 1) //Si il atteint le bord supérieur de la fenetre de jeu
+                    element[j].init = 0;    //Désinitialisé/Disparait
+                else
+                    element[j].y--; //Il monte
+            }
         }
     }
 }
@@ -483,6 +545,14 @@ void GestionAff(WINDOW *jeu, data element[], int compteur, int delai)
     mvwprintw(jeu, element[0].y, element[0].x, design_elem[1]);  //affichage du vaisseau
     wattroff(jeu, COLOR_PAIR(2));
 
+if (element[1].init == 1)
+    {
+        wattron(jeu, COLOR_PAIR(3));
+        wattron(jeu, A_UNDERLINE);
+        mvwprintw(jeu, element[1].y, element[1].x, design_elem[2]); //Affichage du boss
+        wattroff(jeu, A_UNDERLINE);
+        wattroff(jeu, COLOR_PAIR(3));
+    }
 
     if ((compteur%100) == 0)
     {
@@ -492,14 +562,6 @@ void GestionAff(WINDOW *jeu, data element[], int compteur, int delai)
             {
                 switch (element[j].type)    //Affichage des autres element du jeu
                 {
-                    case 0:
-                        //BOSS (a implanter)
-                        //wattron(jeu, COLOR_PAIR(3));
-                        //wattron(jeu, A_UNDERLINE)
-                        //mvwprintw(jeu, element[1].y, element[1].x, design_elem[2]);
-                        //wattroff(jeu, A_UNDERLINE)
-                        //wattroff(jeu, COLOR_PAIR(3));
-                        break;
                     case 1:
                         wattron(jeu, COLOR_PAIR(7));
                         mvwprintw(jeu, element[j].y, element[j].x, design_elem[5]); //Affichage malus
@@ -524,7 +586,7 @@ void GestionAff(WINDOW *jeu, data element[], int compteur, int delai)
             }
         }
     }
-    for (int j=80; j<100; j++)
+    for (int j=80; j<160; j++)
     {
         if (element[j].init == 1)   
         {
@@ -536,11 +598,14 @@ void GestionAff(WINDOW *jeu, data element[], int compteur, int delai)
 
 
 
-void GestionEff(WINDOW *jeu, data element[100], int compteur, int delai)
+void GestionEff(WINDOW *jeu, data element[160], int compteur, int delai)
 {
-        //Effacemement du vaisseau
+        //Effacemement "des traces" du vaisseau lors du déplacement, le vaisseau est réécrit sur la même ligne, on ne fait qu'effacer à gauche et à droite du vaisseau
     mvwprintw(jeu, element[0].y, element[0].x, " ");
-    mvwprintw(jeu, element[0].y, element[0].x + 5, " ");  
+    mvwprintw(jeu, element[0].y, element[0].x + 5, " ");
+
+    if (element[1].init == 1)
+        mvwprintw(jeu, element[1].y, element[1].x, "       ");  //Effacement du boss  
 
     if ((compteur%100) == 0)
     {
@@ -549,13 +614,13 @@ void GestionEff(WINDOW *jeu, data element[100], int compteur, int delai)
             if (element[j].init == 1);
             {
                 if ((element[j].type == 1) || (element[j].type == 2))
-                    mvwprintw(jeu, element[j].y, element[j].x, " ");
+                    mvwprintw(jeu, element[j].y, element[j].x, " ");    //Effacement malus bonus
                 else if ((element[j].type == 3) || (element[j].type == 4))
-                    mvwprintw(jeu, element[j].y, element[j].x, "     ");
+                    mvwprintw(jeu, element[j].y, element[j].x, "     ");    //Effacement ennemi pilule
             }
         }
     }
-    for (int j=80; j<100; j++)
+    for (int j=80; j<160; j++)
     {
         if (element[j].init == 1);  //Pas besoin de vérifier le type, les éléments de 30 à 50 sont forcément des tirs, on ne les efface que s'ils sont initialisés/affichés
             mvwprintw(jeu, element[j].y, element[j].x, " ");
@@ -564,31 +629,35 @@ void GestionEff(WINDOW *jeu, data element[100], int compteur, int delai)
 
 
 
-void GestionCollision(int *pointe_vie, int *pointe_effetJoueur, int *pointe_score, data element[100], int compteur, int delai)
+void GestionCollision(int *pointe_vie, int *pointe_effetJoueur, int *pointe_score, data element[160], int compteur, int delai)
 {
     for (int j=2; j<80; j++)    //Balayage éléments
     {
-        if (element[j].init == 1)
+        if ((element[j].init == 1) || (element[1].init == 1))
         {
             for (int k=80; k<100; k++)   //Balayage des tirs (uniquements pour les éléments initialisés)
             {
-                if ((element[k].type == 5) && (element[j].type == 4) && (element[k].y == element[j].y) && (element[k].x >= element[j].x) && (element[k].x <= element[j].x + 5))   //Si un tir ami rentre en collision avec un ennemi
+                if (/*((compteur%25) == 0) && */(element[k].init == 1)) //On se cale sur la vitesse des tirs (initialisés) pour vérifier les collisions avec eux
                 {
-                    *pointe_score += 10;
-                    element[k].init = 0;
-                    element[j].init = 0; 
-                }
+                    if ((element[k].type == 5) && (element[j].type == 4) && (element[k].y == element[j].y) && (element[k].x >= element[j].x) && (element[k].x <= element[j].x + 5))   //Si un tir ami rentre en collision avec un ennemi
+                    {
+                        *pointe_score += 5;
+                        element[k].init = 0;
+                        element[j].init = 0; 
+                    }
 
-                else if ((element[k].type == 5) && (element[j].type != 4) && (element[k].y == element[j].y) && (element[k].x >= element[j].x) && (element[k].x <= element[j].x + 5))   //Si un tir ami rentre en collision avec autre chose qu'un ennemi
-                {
-                    element[k].init = 0;
-                    element[j].init = 0;
-                }
+                    else if ((element[k].type == 5) && (element[j].type != 4) && (element[k].y == element[j].y) && (element[k].x >= element[j].x) && (element[k].x <= element[j].x + 5))   //Si un tir ami rentre en collision avec autre chose qu'un ennemi
+                    {
+                        element[k].init = 0;
+                        element[j].init = 0;
+                    }
 
-                else if ((element[k].type == 6) && (element[k].y == element[j].y) && (element[k].x >= element[j].x) && (element[k].x <= element[j].x + 5))  //Si un tir ennemi rentre en colision avec le vaisseau
-                {
-                    *pointe_vie -= 2;
-                    element[k].init = 0;
+                    else if ((element[k].type == 6) && (element[k].y == element[0].y) && (element[k].x >= element[0].x) && (element[k].x <= element[0].x + 5))  //Si un tir ennemi rentre en colision avec le vaisseau
+                    {
+                        *pointe_vie -= 1;
+                        element[k].init = 0;
+
+                    }
                 }
             }
 
@@ -666,5 +735,28 @@ void GestionEffetMalusBonus(int *pointe_effetJoueur, int *pointe_delai, int *poi
             /*if (compteur%100 == 0)
                 mvprintw(1,1, "hello");
             break;*/
+    }
+}
+
+
+
+void GestionApparitionBoss(int *pointe_effetJoueur, int  *pointe_score, int *pointe_delai, int *pointe_compboss, int compteur, data element[160])
+{  
+    if ((*pointe_score == 10) && (element[1].init == 0))    //On initialise le boss
+    {
+        *pointe_effetJoueur = 0;
+        for (int j=2; j<160; j++)   //Désinitialisation de tout les éléments
+            element[j].init = 0;
+        element[1].init = 1;
+        element[1].y = 1;
+        element[1].x = rand()%(tab_parametres[1] - 7 - 2) + 1;
+        *pointe_compboss = compteur;          
+    }
+
+    if (((compteur - *pointe_compboss) > 90*100) && (element[1].init == 1)) //90 en seconde et 100 le nombre de tours de boucle necéssaire pour 1s
+    {
+        *pointe_score *= 1.5;
+        *pointe_delai = 50;
+        element[1].init = 0;    //Le boss disparait au bout de 1min30
     }
 }
