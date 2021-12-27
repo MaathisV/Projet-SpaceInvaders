@@ -46,9 +46,10 @@ void AffichageCompteur();
 
 
 /* Fonction MajAffInterface() : met à jour l'interface du jeu
-Entrées : vie (vie du joueur), score (score du joueur), effetJoueur (le joueur est affecté par un bonus ou malus)
+Entrées : vie (vie du joueur), score (score du joueur), effetJoueur (le joueur est affecté par un bonus ou malus), compduree (contient la valeur de compteur depuis laquelle l'effet est actif), avec compteur permet l'affichage de la barre d'effet
+Entrées/Sorties : element (tableau contenant les données de chaque élements) 
 Sorties : néant */
-void MajAffInterface(int vie, int score, int effetJoueur);
+void MajAffInterface(data element[160], int vie, int score, int effetJoueur, int compduree, int compteur);
 
 
 /*FONCTION Pause() : Met en pause l'exécution du programme
@@ -98,9 +99,9 @@ void GestionCollision(int *pointe_vie, int *pointe_effetJoueur, int *pointe_scor
 
 
 /* Fonction GestionEffetMalusBonus() : Gere les effets des malus et des bonus (durées des effets, effet appliqué)
-Entrées : *pointe_effetJoueur (pointeur sur la variable effetJoueur, permet de déterminer l'effet à appliquer), *pointe_delai (pointeur sur la variable delai, permet de modifier la vitesse des éléments), *pointe_duree (pointeur de la variable duree), compteur (compte le nombre d'itérations de la boucle de jeu)
+Entrées : *pointe_effetJoueur (pointeur sur la variable effetJoueur, permet de déterminer l'effet à appliquer), *pointe_delai (pointeur sur la variable delai, permet de modifier la vitesse des éléments), *pointe_compduree (pointeur sur la variable compduree), pointe_effetapp (pointeur sur effetapp, permet de savoir si un effet est en cours d'application), compteur (compte le nombre d'itérations de la boucle de jeu)
 Sorties : néant */
-void GestionEffetMalusBonus(int *pointe_effetJoueur, int *pointe_delai, int *pointe_duree, int compteur);
+void GestionEffetMalusBonus(int *pointe_effetJoueur, int *pointe_delai, int *pointe_compduree, int *pointe_effetapp, int compteur);
 
 
 /* Fonction GestionApparitionBoss() : Gère l'apparition des boss en fonctions du score, s'occupe également des changements de score ou de délai liés

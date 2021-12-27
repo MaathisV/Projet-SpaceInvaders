@@ -1,4 +1,4 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
 #include <unistd.h>
@@ -18,20 +18,21 @@ void Jouer()
     data element[160] = {0}; //Définition des données d'un élément (coordonnées et type) avec initialisation à zéro
     int vie;    //nb de vie du joueur
     int *pointe_vie = &vie;    //Pointe la variable vie
-    int effetJoueur=0; //Désigne le malus ou bonus qui affecte le joueur (0: rien, 11: acceleration des éléments, 12: inversion des commandes du vaisseau, 21: invicibilité, 22: canon activé)
-    int *pointe_effetJoueur = &effetJoueur;  //pointe la variable effetJoueur 
     int clavier;    //Saisie utilisateur
     int pause;  //détermine l'état de la pause
     int compteur = 0;   //Compte le nombre d'itérations de la boucle de jeu
     int i=2;    //Permet de controler l'itération (fais en sorte que le délai soit respecté)
-    int *pointe_i=&i;   //Pointeur sur i
     int score=0;
     int *pointe_score=&score;    //Pointeur sur la variable score
     //double long_sc = 8 + log(score) + 1;
     int delai=100;  //Controle la vitesse des éléments (100 correspond à une seconde)
     int *pointe_delai=&delai;    //Pointeur sur la variable delai
-    int duree=0;    //Compte le temps d'application d'un effet
-    int *pointe_duree=&duree;   //Pointeur sur la variable duree
+    int effetJoueur=0; //Désigne le malus ou bonus qui affecte le joueur (0: rien, 11: acceleration des éléments, 12: inversion des commandes du vaisseau, 21: invicibilité, 22: canon activé)
+    int *pointe_effetJoueur = &effetJoueur;  //pointe la variable effetJoueur 
+    int compduree=0;    //Stocke la valeur de compteur au moment de l'application d'un effet
+    int *pointe_compduree=&compduree;   //Pointeur sur la variable compduree
+    int effetapp=FALSE;    //Indique si l'effet est appliqué
+    int *pointe_effetapp=&effetapp; //Pointeur sur la variable effet app
     int derniertir=0;   //Stocke la valeur de compteur lors du dernier tir joueur
     int *pointe_derniertir=&derniertir; //Pointeur sur la variable derniertir
     int compboss; //Stocke la valeur compteur au moment de l'apparition du boss
@@ -47,7 +48,7 @@ void Jouer()
     AffichageCompteur();
 
         //Définition de la fenêtre de jeu
-    WINDOW *jeu = newwin(tab_parametres[0] - 3, tab_parametres[1], 2, 0);
+    WINDOW *jeu = newwin(tab_parametres[0] - 4, tab_parametres[1], 2, 0);
     wattron(jeu,COLOR_PAIR(1)); 
     box(jeu, 0, 0);
     nodelay(jeu, TRUE);
@@ -55,7 +56,7 @@ void Jouer()
 
         //Initialisation de l'emplacement du vaisseau
     element[0].x = 1;
-    element[0].y = tab_parametres[0] - 5;
+    element[0].y = tab_parametres[0] - 6;
     element[0].init = 1;
  
     element[1].init = 0;    //Boss (non initialisé au départ)
@@ -88,8 +89,8 @@ void Jouer()
         wrefresh(jeu);
 
         GestionCollision(pointe_vie, pointe_effetJoueur, pointe_score, element, compteur, delai);   //Modifie les variables concernés lors de la detection d'une collision entre éléments
-        GestionEffetMalusBonus(pointe_effetJoueur, pointe_delai, pointe_duree, compteur);   //Contrôle et applique les effets des malus et des bonus selon une durée déterminée dans le programme
-        MajAffInterface(vie, score, effetJoueur);   //Actualise les données affichées autour de la fenêtre de jeu
+        GestionEffetMalusBonus(pointe_effetJoueur, pointe_delai, pointe_compduree, pointe_effetapp, compteur);   //Contrôle et applique les effets des malus et des bonus selon une durée déterminée dans le programme
+        MajAffInterface(element, vie, score, effetJoueur, compduree, compteur);   //Actualise les données affichées autour de la fenêtre de jeu
 
         GestionApparitionBoss(pointe_effetJoueur, pointe_score, pointe_delai, pointe_compboss, compteur, element);
 
@@ -279,41 +280,59 @@ void AffichageCompteur()
 }
 
 
-void MajAffInterface(int vie, int score, int effetJoueur)
+void MajAffInterface(data element[160], int vie, int score, int effetJoueur, int compduree, int compteur)
 {
+        //Variables pour le système d'affichage d'une barre de progression pour les effets (non implanté/fonctionnel)
+    char barres_prog[6][7] = {"<     >", "<=   >", "<==   >", "<===  >", "<==== >", "<=====>"}; //Différents niveaux de barres de progression pour les effets
+    int remplissage = 0;    //Contient la valeur correspondant au niveau de remplissage de la barre de progression
+
     mvprintw(0,0, "Vie(s) : %d", vie);
     mvprintw(0,tab_parametres[1] - 12, "Score : %d", score);
-    attron(A_DIM);
-    mvprintw(tab_parametres[0] - 1, (tab_parametres[1] / 2) - (15/2), "CANON DESACTIVE");
-    attroff(A_DIM);
-    //mvprintw(1,tab_parametres[1] - 12, "effet : %d", effetJoueur);
+    //mvprintw(1,tab_parametres[1] - 12, "effet : %d", effetJoueur);    //debug
     switch (effetJoueur)
     {
         case 11:
             attron(COLOR_PAIR(6));
-            mvprintw(tab_parametres[0] - 1, 0, "ACCELERATION");
+            mvprintw(tab_parametres[0] - 2, (tab_parametres[1]/2) - (12/2), "ACCELERATION");
             attroff(COLOR_PAIR(6));
+            //remplissage = ((compteur - compduree) / 500);
+            //mvprintw(tab_parametres[0] - 1, (tab_parametres[1]/2) - (7/2), barres_prog[remplissage]);   //Affichage de la barre de progression
             break;
         case 12:
             attron(COLOR_PAIR(6));
-            mvprintw(tab_parametres[0] - 1, 0, "INVERSION");
+            mvprintw(tab_parametres[0] - 2, (tab_parametres[1]/2) - (9/2), "INVERSION");
             attroff(COLOR_PAIR(6));
+            //remplissage = ((compteur - compduree) / 1500);
+            //mvprintw(tab_parametres[0] - 1, (tab_parametres[1]/2) - (7/2), barres_prog[remplissage]);   //Affichage de la barre de progression
             break;
         case 21:
             attron(COLOR_PAIR(7));
-            mvprintw(tab_parametres[0] - 1, 0, "INVICIBLE");
+            mvprintw(tab_parametres[0] - 2, (tab_parametres[1]/2) - (9/2), "INVICIBLE");
             attroff(COLOR_PAIR(7));
+            //remplissage = ((compteur - compduree) / 1000);
+            //mvprintw(tab_parametres[0] - 1, (tab_parametres[1]/2) - (7/2), barres_prog[remplissage]);   //Affichage de la barre de progression
             break;
         case 22:
-            mvprintw(tab_parametres[0] - 1, (tab_parametres[1] / 2) - (15/2), "               ");
             attron(COLOR_PAIR(7));
-            mvprintw(tab_parametres[0] - 1, (tab_parametres[1] / 2) - 6, "CANON ACTIVE");
+            mvprintw(tab_parametres[0] - 2, (tab_parametres[1]/2) - (12/2), "CANON ACTIVE");
             attroff(COLOR_PAIR(7));
+            //remplissage = ((compteur - compduree) / 3000);
+            //mvprintw(tab_parametres[0] - 1, (tab_parametres[1]/2) - (7/2), barres_prog[remplissage]);   //Affichage de la barre de progression
+            break;
         case 0:
-            mvprintw(tab_parametres[0] - 1, 0, "            ");
+            if (element[1].init == 1)   //Si le boss est présent le joueur ne peut pas avoir d'effet actif
+            {
+                attron(COLOR_PAIR(3) | A_UNDERLINE);
+                mvprintw(tab_parametres[0] - 1, (tab_parametres[1]/2) - (10/2), "BOSS ACTIF");
+                attroff(COLOR_PAIR(3) | A_UNDERLINE);
+            }
+            else
+            {
+                move(tab_parametres[0] - 2, 0); //Efface le bas de l'écran
+                clrtobot();
+            }
             break;
     }
-
     refresh();
 }
 
@@ -471,7 +490,7 @@ void GestionMvElem(int clavier, data element[160], int *pointe_effetJoueur, int 
                 element[1].x = tab_parametres[1] - 2 - 7;
         }
 
-        if (compteur%100 == 0)  //Il peut tirer deux tirs en fonction du délai
+        if ((compteur%(100*2)) == 0)  //Il peut tirer deux tirs en fonction du délai
         {
             boucle_tir = TRUE;
             for (int k=80; k<160 && boucle_tir; k++)    //Balayage pour le premier tir
@@ -507,7 +526,7 @@ void GestionMvElem(int clavier, data element[160], int *pointe_effetJoueur, int 
         {
             if (element[j].init == 1)
             {
-                if (element[j].y > (tab_parametres[0] - 6)) //Si il atteint le bord inférieur de la fenetre de jeu
+                if (element[j].y > (tab_parametres[0] - 7)) //Si il atteint le bord inférieur de la fenetre de jeu
                     element[j].init = 0;    //Désinitialisé/Disparait
                 else
                     element[j].y++; //Il descends
@@ -547,11 +566,9 @@ void GestionAff(WINDOW *jeu, data element[], int compteur, int delai)
 
 if (element[1].init == 1)
     {
-        wattron(jeu, COLOR_PAIR(3));
-        wattron(jeu, A_UNDERLINE);
+        wattron(jeu, COLOR_PAIR(3) | A_UNDERLINE);
         mvwprintw(jeu, element[1].y, element[1].x, design_elem[2]); //Affichage du boss
-        wattroff(jeu, A_UNDERLINE);
-        wattroff(jeu, COLOR_PAIR(3));
+        wattroff(jeu, COLOR_PAIR(3) | A_UNDERLINE);
     }
 
     if ((compteur%100) == 0)
@@ -637,7 +654,7 @@ void GestionCollision(int *pointe_vie, int *pointe_effetJoueur, int *pointe_scor
         {
             for (int k=80; k<100; k++)   //Balayage des tirs (uniquements pour les éléments initialisés)
             {
-                if (/*((compteur%25) == 0) && */(element[k].init == 1)) //On se cale sur la vitesse des tirs (initialisés) pour vérifier les collisions avec eux
+                if (/*((compteur%25) == 0) && */(element[k].init == 1)) //Verification des collisions entre les tirs initialisés
                 {
                     if ((element[k].type == 5) && (element[j].type == 4) && (element[k].y == element[j].y) && (element[k].x >= element[j].x) && (element[k].x <= element[j].x + 5))   //Si un tir ami rentre en collision avec un ennemi
                     {
@@ -690,48 +707,69 @@ void GestionCollision(int *pointe_vie, int *pointe_effetJoueur, int *pointe_scor
 
 
 
-void GestionEffetMalusBonus(int *pointe_effetJoueur, int *pointe_delai, int *pointe_duree, int compteur)
+void GestionEffetMalusBonus(int *pointe_effetJoueur, int *pointe_delai, int *pointe_compduree, int *pointe_effetapp, int compteur)
 {
         //Debug affichage des booléens des conditions car le délai des effets ne fonctionnent pas
-    /*mvprintw(3,3, "%d", (*pointe_duree <= 5));
+    /*mvprintw(3,3, "%d", (*pointe_compduree <= 5));
     mvprintw(4, 4, "%d", ((compteur%100) == 0));*/
     switch (*pointe_effetJoueur)
     {
         case 11:    //Acceleration
-            *pointe_delai = *pointe_delai / 2;
-            *pointe_effetJoueur = 19;   //Définit à 19 pour éviter de réduire le délai en boucle
-            if (((compteur%100) == 0) && (*pointe_duree <= 5))
-                *pointe_duree++;
-            else if (*pointe_duree > 5)
+            if (*pointe_effetapp == FALSE)  //Si l'effet n'est pas appliqué
             {
-                *pointe_delai = *pointe_delai * 2;  //Réapplique l'ancienne vitesse
+                *pointe_compduree = compteur;    
+                *pointe_delai = *pointe_delai - 25;  //Application de l'effet
+                *pointe_effetapp = TRUE;
+            }
+            if ((compteur - *pointe_compduree) > 5*100)
+            {
+                *pointe_delai = *pointe_delai + 25;  //Réapplique l'ancienne vitesse
+                *pointe_effetapp = FALSE;
                 *pointe_effetJoueur = 0;    //Plus aucun effet n'est appliqué
             }
             break;
         
         case 12:    //Inversion des commandes du vaisseau (voir dans GestionMvElem)
-            if (((compteur%100) == 0) && (*pointe_duree <= 15))
-                *pointe_duree++;
-            else if (*pointe_duree > 15)
+            if (*pointe_effetapp == FALSE)  //Si l'effet n'est pas appliqué
+            {
+                *pointe_compduree = compteur;
+                *pointe_effetapp = TRUE;
+            }
+            if ((compteur - *pointe_compduree) > 15*100)
+            {
+                *pointe_effetapp = FALSE;
                 *pointe_effetJoueur = 0;    //Plus aucun effet n'est appliqué
+            }
             break;
 
         case 21:    //Invincibilité aux ennemis (voir dans GestionCollision)
-            if (((compteur%100) == 0) && (*pointe_duree <= 10))
-                *pointe_duree++;
-            else if (*pointe_duree > 10)
+            if (*pointe_effetapp == FALSE)  //Si l'effet n'est pas appliqué
+            {
+                *pointe_compduree = compteur;
+                *pointe_effetapp = TRUE;
+            }
+            if ((compteur - *pointe_compduree) > 10*100)
+            {
+                *pointe_effetapp = FALSE;
                 *pointe_effetJoueur = 0;    //Plus aucun effet n'est appliqué
+            }
             break;
         
         case 22:    //Canon activé
-            if (((compteur%100) == 0) && (*pointe_duree <= 30))
-                *pointe_duree++;
-            else if (*pointe_duree > 30)
+            if (*pointe_effetapp == FALSE)  //Si l'effet n'est pas appliqué
+            {
+                *pointe_compduree = compteur;
+                *pointe_effetapp = TRUE;
+            }
+            if ((compteur - *pointe_compduree) > 30*100)
+            {
+                *pointe_effetapp = FALSE;
                 *pointe_effetJoueur = 0;    //Plus aucun effet n'est appliqué
+            }
             break;
 
         case 0: //Aucun effet n'est appliqué
-            *pointe_duree = 0;  //Alors remise à zéro du temps d'application d'un effet
+            *pointe_compduree = 0;  //Alors remise à zéro du temps d'application d'un effet
             /*if (compteur%100 == 0)
                 mvprintw(1,1, "hello");
             break;*/
@@ -742,7 +780,7 @@ void GestionEffetMalusBonus(int *pointe_effetJoueur, int *pointe_delai, int *poi
 
 void GestionApparitionBoss(int *pointe_effetJoueur, int  *pointe_score, int *pointe_delai, int *pointe_compboss, int compteur, data element[160])
 {  
-    if ((*pointe_score == 10) && (element[1].init == 0))    //On initialise le boss
+    if ((*pointe_score == 100) && (element[1].init == 0))    //On initialise le boss
     {
         *pointe_effetJoueur = 0;
         for (int j=2; j<160; j++)   //Désinitialisation de tout les éléments
@@ -753,10 +791,11 @@ void GestionApparitionBoss(int *pointe_effetJoueur, int  *pointe_score, int *poi
         *pointe_compboss = compteur;          
     }
 
-    if (((compteur - *pointe_compboss) > 90*100) && (element[1].init == 1)) //90 en seconde et 100 le nombre de tours de boucle necéssaire pour 1s
+    if (((compteur - *pointe_compboss) > 45*100) && (element[1].init == 1)) //45 en seconde et 100 le nombre de tours de boucle necéssaire pour 1s
     {
         *pointe_score *= 1.5;
         *pointe_delai = 50;
+        mvprintw(element[1].y + 3, element[1].x + 1, "       ");  //Effacement du boss (on rajoute 3 et 1 car les coordonnées sont définies en fonctions de la fenêtre jeu)  
         element[1].init = 0;    //Le boss disparait au bout de 1min30
     }
 }
