@@ -92,9 +92,9 @@ void Jouer()
         GestionEffetMalusBonus(pointe_effetJoueur, pointe_delai, pointe_compduree, pointe_effetapp, compteur);   //Contrôle et applique les effets des malus et des bonus selon une durée déterminée dans le programme
         MajAffInterface(element, vie, score, effetJoueur, compduree, compteur);   //Actualise les données affichées autour de la fenêtre de jeu
 
-        GestionApparitionBoss(pointe_effetJoueur, pointe_score, pointe_delai, pointe_compboss, compteur, element);
+        GestionApparitionBoss(jeu, pointe_effetJoueur, pointe_score, pointe_delai, pointe_compboss, compteur, element);
 
-        if (((compteur%100) == 0) && (element[1].init == 0))    //Si le délai est respecté et que le boss n'est pas initialisé
+        if (((compteur%delai) == 0) && (element[1].init == 0))    //Si le délai est respecté et que le boss n'est pas initialisé
         {
             i++;
             score++;    //Augmentation du score si le joueur n'est pas touché par un ennemi => not implmented yet)
@@ -323,7 +323,7 @@ void MajAffInterface(data element[160], int vie, int score, int effetJoueur, int
             if (element[1].init == 1)   //Si le boss est présent le joueur ne peut pas avoir d'effet actif
             {
                 attron(COLOR_PAIR(3) | A_UNDERLINE);
-                mvprintw(tab_parametres[0] - 1, (tab_parametres[1]/2) - (10/2), "BOSS ACTIF");
+                mvprintw(tab_parametres[0] - 2, (tab_parametres[1]/2) - (10/2), "BOSS ACTIF");
                 attroff(COLOR_PAIR(3) | A_UNDERLINE);
             }
             else
@@ -490,7 +490,7 @@ void GestionMvElem(int clavier, data element[160], int *pointe_effetJoueur, int 
                 element[1].x = tab_parametres[1] - 2 - 7;
         }
 
-        if ((compteur%(100*2)) == 0)  //Il peut tirer deux tirs en fonction du délai
+        if ((compteur%(delai*2)) == 0)  //Il peut tirer deux tirs en fonction du délai
         {
             boucle_tir = TRUE;
             for (int k=80; k<160 && boucle_tir; k++)    //Balayage pour le premier tir
@@ -519,7 +519,7 @@ void GestionMvElem(int clavier, data element[160], int *pointe_effetJoueur, int 
         }
     }
 
-    if ((compteur%100) == 0)
+    if ((compteur%delai) == 0)
     {   if (element[1].init == 0)   //On initialise aucun autre éléments tant que le boss est initialisé
             initElem(element, i);
         for (int j=2; j<80; j++)    //On passe que sur les éléments qui ont un délai à respecter (pilules, ennemis, bonus, malus)
@@ -540,7 +540,7 @@ void GestionMvElem(int clavier, data element[160], int *pointe_effetJoueur, int 
         {
             if ((element[j].init == 1) && (element[j].type == 6))   //Si l'élément est initialisé et est un tir ennemi
             {
-                if (element[j].y > (tab_parametres[0] - 6)) //Si il atteint le bord inférieur de la fenetre de jeu
+                if (element[j].y > (tab_parametres[0] - 7)) //Si il atteint le bord inférieur de la fenetre de jeu
                     element[j].init = 0;    //Désinitialisé/Disparait
                 else
                     element[j].y++; //Il descends
@@ -571,7 +571,7 @@ if (element[1].init == 1)
         wattroff(jeu, COLOR_PAIR(3) | A_UNDERLINE);
     }
 
-    if ((compteur%100) == 0)
+    if ((compteur%delai) == 0)
     {
         for (int j=2; j<80; j++)
         {
@@ -624,7 +624,7 @@ void GestionEff(WINDOW *jeu, data element[160], int compteur, int delai)
     if (element[1].init == 1)
         mvwprintw(jeu, element[1].y, element[1].x, "       ");  //Effacement du boss  
 
-    if ((compteur%100) == 0)
+    if ((compteur%delai) == 0)
     {
         for (int j=2; j<80; j++)
         {
@@ -711,7 +711,7 @@ void GestionEffetMalusBonus(int *pointe_effetJoueur, int *pointe_delai, int *poi
 {
         //Debug affichage des booléens des conditions car le délai des effets ne fonctionnent pas
     /*mvprintw(3,3, "%d", (*pointe_compduree <= 5));
-    mvprintw(4, 4, "%d", ((compteur%100) == 0));*/
+    mvprintw(4, 4, "%d", ((compteur%delai) == 0));*/
     switch (*pointe_effetJoueur)
     {
         case 11:    //Acceleration
@@ -770,17 +770,19 @@ void GestionEffetMalusBonus(int *pointe_effetJoueur, int *pointe_delai, int *poi
 
         case 0: //Aucun effet n'est appliqué
             *pointe_compduree = 0;  //Alors remise à zéro du temps d'application d'un effet
-            /*if (compteur%100 == 0)
-                mvprintw(1,1, "hello");
-            break;*/
+            break;
     }
 }
 
 
 
-void GestionApparitionBoss(int *pointe_effetJoueur, int  *pointe_score, int *pointe_delai, int *pointe_compboss, int compteur, data element[160])
-{  
-    if ((*pointe_score == 100) && (element[1].init == 0))    //On initialise le boss
+void GestionApparitionBoss(WINDOW *jeu, int *pointe_effetJoueur, int  *pointe_score, int *pointe_delai, int *pointe_compboss, int compteur, data element[160])
+{
+    const int recurrence=750;   //Valeur de score récurrente pour le dernier boss
+    bool boucle_boss=TRUE;  //Controle la sortie de la boucle pour le dernier boss
+
+        //Si aucun boss n'est initialisé, plusieurs boss apparaitront en fonction du score, le dernier boss apparaitra tout les 750 point environ (la possibilité d'un tir sur un ennemi est prise en compte)
+    if ((element[1].init == 0) && ((*pointe_score >= 45) && (*pointe_score < 55)) || ((*pointe_score >= 245) && (*pointe_score < 250)))
     {
         *pointe_effetJoueur = 0;
         for (int j=2; j<160; j++)   //Désinitialisation de tout les éléments
@@ -790,12 +792,47 @@ void GestionApparitionBoss(int *pointe_effetJoueur, int  *pointe_score, int *poi
         element[1].x = rand()%(tab_parametres[1] - 7 - 2) + 1;
         *pointe_compboss = compteur;          
     }
-
-    if (((compteur - *pointe_compboss) > 45*100) && (element[1].init == 1)) //45 en seconde et 100 le nombre de tours de boucle necéssaire pour 1s
+    else if (element[1].init == 0)  //Si les précédent paliers de scores sont passés et qu'un boss n'est pas initialisé
     {
-        *pointe_score *= 1.5;
-        *pointe_delai = 50;
-        mvprintw(element[1].y + 3, element[1].x + 1, "       ");  //Effacement du boss (on rajoute 3 et 1 car les coordonnées sont définies en fonctions de la fenêtre jeu)  
+        for (int n=1; n<99999 && boucle_boss; n++)  //Alors test des multiples de 750 plus ou moins 5 (éventualité d'un tir sur un ennemi)  
+        {
+            if ((*pointe_score >= (recurrence*n) - 5) && (*pointe_score < (recurrence*n) + 5))
+            {
+                boucle_boss = FALSE;
+                *pointe_effetJoueur = 0;
+                for (int j=2; j<160; j++)   //Désinitialisation de tout les éléments
+                    element[j].init = 0;
+                element[1].init = 1;
+                element[1].y = 1;
+                element[1].x = rand()%(tab_parametres[1] - 7 - 2) + 1;
+                *pointe_compboss = compteur;
+            }
+
+        }
+    } 
+
+        //Condition de disparition des boss en fonction du délai, gère aussi le bonus de score
+    if ((*pointe_delai == 200) && ((compteur - *pointe_compboss) > 20*100) && (element[1].init == 1)) //20 en seconde et 100 le nombre de tours de boucle necéssaire pour 1s (uniquement si on a un délai de 200)
+    {
+        *pointe_score *= 1.1;
+        *pointe_delai = 100;    //Mise en place du nouveau délai
+        mvwprintw(jeu, element[1].y, element[1].x, "       ");  //Effacement du boss
+        element[1].init = 0;    //Le boss disparait au bout de 20s
+    }
+
+    if ((*pointe_delai == 100) && ((compteur - *pointe_compboss) > 60*100) && (element[1].init == 1)) //60 en seconde et 100 le nombre de tours de boucle necéssaire pour 1s (uniquement si on a un délai de 100)
+    {
+        *pointe_score *= 1.2;
+        *pointe_delai = 50;    //Mise en place du nouveau délai
+        mvwprintw(jeu, element[1].y, element[1].x, "       ");  //Effacement du boss
+        element[1].init = 0;    //Le boss disparait au bout de 1min
+    }
+
+    if ((*pointe_delai == 50) && ((compteur - *pointe_compboss) > 90*100) && (element[1].init == 1)) //90 en seconde et 100 le nombre de tours de boucle necéssaire pour 1s (uniquement si on a un délai de 100)
+    {
+        *pointe_score *= 1.4;
+        mvwprintw(jeu, element[1].y, element[1].x, "       ");  //Effacement du boss
+        mvprintw(1, 1, "boss 3");
         element[1].init = 0;    //Le boss disparait au bout de 1min30
     }
 }

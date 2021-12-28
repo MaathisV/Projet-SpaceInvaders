@@ -105,9 +105,9 @@ void GestionEffetMalusBonus(int *pointe_effetJoueur, int *pointe_delai, int *poi
 
 
 /* Fonction GestionApparitionBoss() : Gère l'apparition des boss en fonctions du score, s'occupe également des changements de score ou de délai liés
-Entrées : *pointe_effetJoueur (pointeur, désigne l'état positif ou négatif affecté au vaisseau), *pointe_score (pointe la variable score), *pointe_delai (pointeur sur la variable délai), *pointe_compboss (pointeur sur compboss), compteur (compte le nombre d'itérations de la boucle de jeu)
+Entrées : jeu (fenêtre ncurses dans laquelle sera affichée les éléments), *pointe_effetJoueur (pointeur, désigne l'état positif ou négatif affecté au vaisseau), *pointe_score (pointe la variable score), *pointe_delai (pointeur sur la variable délai), *pointe_compboss (pointeur sur compboss), compteur (compte le nombre d'itérations de la boucle de jeu)
 Entrées/Sorties : element (tableau contenant les données de chaque élements)
 Sorties : néant */
-void GestionApparitionBoss(int *pointe_effetJoueur, int  *pointe_score, int *pointe_delai, int *pointe_compboss, int compteur, data element[160]);
+void GestionApparitionBoss(WINDOW *jeu, int *pointe_effetJoueur, int  *pointe_score, int *pointe_delai, int *pointe_compboss, int compteur, data element[160]);
 
 #endif
