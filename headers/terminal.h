@@ -62,4 +62,10 @@ Entrées/Sorties : néant*/
 void InitTabs();
 
 
+/*Fonction permettant la saisie validée d'un chaine de caractères alphanumériques
+Entrées : *fenetre (fenetre ncurses dans laquelle sera effectuée la saisie), y (ordonnées de la saisie), x (abscisse de la saisie), longueur (précise la longeur de la chaine), validation (indique si on attends une validation de la saisie par la touche entrée)
+Entrées/Sorties : chaine (tableau de char dans lequel la saisie sera effectuée)
+Sorties : néant */
+void SaisieChaine(WINDOW *fenetre, int y, int x, char chaine[], int longueur, bool validation);
+
 #endif

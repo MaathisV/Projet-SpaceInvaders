@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
+#include <ctype.h>
 #include "../headers/terminal.h"
 
 
@@ -8,7 +9,7 @@ extern int tab_parametres[50];
 
 void color()
 {
-        //Initialisation des paires de couleurs
+        //Initialisation des paires de couleurs (texte puis fond)
     init_pair(1,tab_parametres[2],tab_parametres[3]);   //Couleurs de l'interface
     init_pair(2,tab_parametres[4],tab_parametres[5]);   //Couleurs du joueur
     init_pair(3,tab_parametres[6],tab_parametres[7]);   //Couleurs du BOSS
@@ -40,6 +41,41 @@ char b_wgetch(WINDOW* fenetre)
 {
     timeout(-1);
     return wgetch(fenetre);
+}
+
+
+void SaisieChaine(WINDOW *fenetre, int y, int x, char chaine[], int longueur, bool validation)
+{
+    int l=0; //Curseur compris entre longueur et 0
+    curs_set(TRUE);
+    keypad(fenetre, TRUE);  //Empeche la récupération des touches directionnelles (et autres) en tant que char
+    wrefresh(fenetre);
+    while (l<longueur)
+    {
+        mvwprintw(fenetre, y, x, chaine);
+        wrefresh(fenetre);
+        move(y, x+l);
+        char caractere = getch();
+        mvwprintw(fenetre, tab_parametres[0] - 3, (tab_parametres[1]/2) - (17/2),"                  ");
+        if (isgraph(caractere))
+        {
+            chaine[l] = caractere;
+            l++;
+        }
+        else if ((validation == TRUE) && (iscntrl(caractere)) && (caractere == '\n') && (l>0))   //Si l'option de validation est activée et que caractere est à la fois un caractère de controle et le retour à la ligne + chaine trop courte
+        {
+            chaine[l] = '\0';   //Place le caractère de fin de chaine
+            keypad(fenetre, FALSE);
+            curs_set(FALSE);
+            return;
+        }
+        else
+            mvwprintw(fenetre, tab_parametres[0] - 3, (tab_parametres[1]/2) - (17/2),"Saisie incorrecte");
+    }
+    chaine[longueur] = '\0';  //Place le caractère de fin de chaine
+    keypad(fenetre, FALSE);
+    curs_set(FALSE);
+    return;
 }
 
 

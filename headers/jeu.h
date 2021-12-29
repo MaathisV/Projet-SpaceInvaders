@@ -19,7 +19,7 @@ struct data
 typedef struct score score;
 struct score
 {
-    char pseudo;
+    char pseudo[14];
     int score;
 };
 

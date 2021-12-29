@@ -11,7 +11,7 @@
 
 extern int tab_parametres[50];
 extern score joueur[11];
-extern char *design_elem[7];
+extern char design_elem[7][10];
 
 void Jouer()
 {
@@ -110,71 +110,50 @@ void Jouer()
 int DebutPartie(score joueur[11])
 {
     int clavier;   //Récupère la saisie clavier
-    char pseudo;    //Récupère le pseudo
     int selection_vie = 5;  //Nombre de vies selectionnées (entre 1 et 5, 5 par défaut)
-    int modif = 1;  //Désigne le réglage a modifier (1: pseudo, 2 : nombre de vie)
 
 
-    WINDOW *DebutPartie = newwin(tab_parametres[0], tab_parametres[1], 0, 0);   //Fenetre dans laquelle sera affiché le choix du pseudo et du nombre de vie
-    wattron(DebutPartie,COLOR_PAIR(1)); 
-
+    mvprintw(tab_parametres[0] / 4, (tab_parametres[1] / 2) - (25 / 2), "Saisissez votre pseudo :");
+    mvprintw((tab_parametres[0] / 4) + 1, (tab_parametres[1] / 2) - (36 / 2), "(12 caractères alphanumériques maxi)");
+    SaisieChaine(stdscr, (tab_parametres[0] / 4) + 2, (tab_parametres[1] / 2) - (25 / 2), joueur[10].pseudo, 12, TRUE);  //La derniere case du tableau stocke les données du joueur de la partie en cours
+        
     curs_set(TRUE);
+    keypad(stdscr, TRUE);
     while (1)
     {
-        switch (modif)
+        mvprintw((tab_parametres[0] / 4) + 4, (tab_parametres[1] / 2) - (30 / 2), "Nombre de vie selectionnées : %d", selection_vie);
+        clavier = getch();
+
+        switch (clavier)
         {
-            case 1:
-                echo();
-                move((tab_parametres[0] / 4) + 1, (tab_parametres[1] / 2) - (25 / 2));  //Déplace et efface l'éventuel nom précédent en cas d'erreur
-                clrtoeol();
-                mvwprintw(DebutPartie, tab_parametres[0] / 4, (tab_parametres[1] / 2) - (25 / 2), "Saisissez votre pseudo :");
-                mvwscanw(DebutPartie, (tab_parametres[0] / 4) + 1, (tab_parametres[1] / 2) - (24 / 2), "%c", &pseudo);
-                modif = 2;
-                noecho();
-                break;
-            case 2:
-                keypad(DebutPartie, TRUE);
-                mvwprintw(DebutPartie, (tab_parametres[0] / 4) + 4, (tab_parametres[1] / 2) - (31 / 2), "Nombre de vie selectionnées : %d", selection_vie);
-                clavier = wgetch(DebutPartie);
+        case KEY_DOWN:
+            selection_vie--;
+            if (selection_vie < 1)
+                selection_vie = 1;
+            break;
 
-                switch (clavier)
-                {
-                case KEY_DOWN:
-                    selection_vie--;
-                    if (selection_vie < 1)
-                        selection_vie = 1;
-                    break;
+        case KEY_UP:
+            selection_vie++;
+            if (selection_vie > 5)
+                selection_vie = 5;
+            break;
 
-                case KEY_UP:
-                    selection_vie++;
-                    if (selection_vie > 5)
-                        selection_vie = 5;
-                    break;
+        case 27:    //touche esc pressé on retourne au menu
+            curs_set(FALSE);
+            clear();
+            keypad(stdscr, FALSE);
+            refresh();
+            return -1;
+            break;
 
-                case 27:    //touche esc pressé on retourne au menu
-                    curs_set(FALSE);
-                    clear();
-                    delwin(DebutPartie);
-                    refresh();
-                    return -1;
-                    break;
-
-                case 10:    //Entrée pressée, réglages de partie validés
-                    curs_set(FALSE);
-                    for (int j=0;j<11;j++)  //on stocke le pseudo dans le tableau des scores
-                    {
-                        if (joueur[j].pseudo == 0)
-                            joueur[j].pseudo = pseudo;    //On enregistre dans la première case libre (variable pseudo de la structure egal à zéro -> case vide)
-                    }
-                    clear();
-                    delwin(DebutPartie);
-                    return selection_vie;
-                    break;
-                }
-                break;
-
-        wrefresh(DebutPartie);       
+        case 10:    //Entrée pressée, réglages de partie validés, le jeu démarre
+            curs_set(FALSE);
+            clear();
+            keypad(stdscr, FALSE);
+            return selection_vie;
+            break;
         }
+    refresh();       
     }
 }
 

@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../headers/parametres.h"
 #include "../headers/menus.h"
 #include "../headers/terminal.h"
@@ -8,7 +9,7 @@
 
 
 extern int tab_parametres[50];
-extern char *design_elem[7];
+extern char design_elem[7][10];
 
 void Fct_Parametres(int option)
 {
@@ -63,7 +64,7 @@ void ModifCouleurs()
         }
         refresh();
 
-        for (int i=0; i < 16; i++)
+        for (int i=0; i < 16; i++)  //Affichage du menu avec l'option selectionnée par le curseur en surbrillance
         {
             if (i == select)
             {
@@ -119,6 +120,7 @@ void ModifDesign()
     box(fenModifDesign, 0, 0);
     refresh();
     int select=0; //Désigne l'élément duquel on doit modifier le design
+    char design_defaut[6][10] = {"<[°]>", "<XXXXX>", "XXXXX", "OOOOO", "m", "b"};  //Désign par défaut des éléments
 
     keypad(fenModifDesign, TRUE);
 
@@ -133,7 +135,7 @@ void ModifDesign()
         }
         refresh();
 
-        for (int i=0; i < 8; i++)
+        for (int i=0; i < 8; i++)   //Affichage du menu avec l'option selectionnée par le curseur en surbrillance
         {
             if (i == select)
             {
@@ -170,19 +172,20 @@ void ModifDesign()
                     return;
                 }
                 else if (select == 6)  //On souhaite remettre les valeurs par défaut
-                    mvprintw(0, 0, "Défaut");
+                {
+                    for (int d=0; d<6; d++)
+                        strcpy(design_elem[d+1], design_defaut[d]);
+                }
                 else 
                 {
-                    curs_set(TRUE);
-                    echo();
                     mvprintw((tab_parametres[0] / 2) + 2, (tab_parametres[1] / 2) - (53/2), "Saisir le nouveau design pour l'élément selectionné :");
-                    if ((select == 5) || (select == 4)) //Si l'élément est un bonus ou mal on accepte un chaine de caractère de longeur 1 uniquement
-                        mvscanw((tab_parametres[0] / 2) + 2 + 1, (tab_parametres[1] / 2) - (53/2), "%.1c", &design_elem[select+1]);
-                    else
-                        mvscanw((tab_parametres[0] / 2) + 2 + 1, (tab_parametres[1] / 2) - (53/2), "%.5c", &design_elem[select+1]);
-                    mvprintw(0, 0, design_elem[select+1]);  //debug
-                    curs_set(FALSE);
-                    noecho();
+                    refresh();
+                    if ((select == 5) || (select == 4)) //Modification bonus ou malus donc longueur 1 max
+                        SaisieChaine(stdscr, (tab_parametres[0] / 2) + 3, (tab_parametres[1] / 2) - (53/2), design_elem[select+1], 1, FALSE);
+                    else if (select == 1)   //Modification de boss donc longueur 7 max
+                        SaisieChaine(stdscr, (tab_parametres[0] / 2) + 3, (tab_parametres[1] / 2) - (53/2), design_elem[select+1], 7, FALSE);
+                    else    //Modification de ennemi ou pilule donc longueur 5 max
+                        SaisieChaine(stdscr, (tab_parametres[0] / 2) + 3, (tab_parametres[1] / 2) - (53/2), design_elem[select+1], 5, FALSE);
                     move((tab_parametres[0] / 2) + 2, (tab_parametres[1] / 2) - 26);
                     clrtobot();
                 }

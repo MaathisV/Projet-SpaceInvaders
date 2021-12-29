@@ -35,7 +35,6 @@ int ChoixMenuPrincipal()
     box(menuPr, 0, 0);
     keypad(menuPr, true);
 
-    //wattron(menuPr, COLOR_PAIR(1));
 
         //Affichage du titre
     for(int i=0;i<12;i++)
@@ -48,7 +47,7 @@ int ChoixMenuPrincipal()
         posx=(tab_parametres[1] / 2)  - (long_info / 2) - 10;
         posy++;
     }
-    mvprintw(14 + 9, (tab_parametres[1] / 2) - long_info / 2, info);
+    mvprintw((tab_parametres[0] / 3) + 8, (tab_parametres[1] / 2) - long_info / 2, info);
     refresh();
     
     
@@ -95,13 +94,18 @@ int ChoixMenuPrincipal()
 
 int ChoixMenuParametres()
 {
-    char titre[] = {"PARAMèTRES"};
-    char *menuPa_liste[5] = {"Changer les couleurs", "Activer/Désactiver les effets sonores", "Mettre à jour la taille du terminal", "Réinitialiser les scores", "Retour"};
-    int long_titre = strlen(titre);
+    char titre[5][60] = {"    ____                                  __                ",
+                         "   / __ \\____ __________ _____ ___  ___  / /_________  _____", 
+                         "  / /_/ / __ `/ ___/ __ `/ __ `__ \\/ _ \\/ __/ ___/ _ \\/ ___/",
+                         " / ____/ /_/ / /  / /_/ / / / / / /  __/ /_/ /  /  __(__  ) ",
+                         "/_/    \\__,_/_/   \\__,_/_/ /_/ /_/\\___/\\__/_/   \\___/____/  "};
+
+    char *menuPa_liste[5] = {"Changer les couleurs", "Changer le design des éléments du jeu", "Mettre à jour la taille du terminal", "Réinitialiser les scores", "Retour"};
     char info[] = "Flèches pour sélectionner || Entrée pour valider";
     int long_info = strlen(info);
     int select = 0; //Option du menuPr selectionnée (mais non validée)
     int action; //recupère la touche pressée
+    int posy=0, posx=(tab_parametres[1] / 2)  - (long_info / 2) - 10; //Position du titre
 
         //Création de la zone du menuPr, avec bordure
     WINDOW *menuPa = newwin(8, long_info, (tab_parametres[0] / 3), (tab_parametres[1] / 2) - (long_info / 2));
@@ -109,12 +113,20 @@ int ChoixMenuParametres()
     box(menuPa, 0, 0);
     keypad(menuPa, true);
 
-    wattron(menuPa, COLOR_PAIR(1));
 
-    mvprintw(0, (tab_parametres[1] / 2) - (long_titre / 2), titre);  //Affichage du nom de la l'affichage
-    mvprintw(tab_parametres[0] / 3 + 9, (tab_parametres[1] / 2) - long_info / 2, info);
+       //Affichage du titre
+    for(int i=0;i<5;i++)
+    { 
+        for(int j=0;j<60;j++)
+        {
+            mvprintw(posy, posx, "%c",titre[i][j]);
+            posx++;
+        }
+        posx=(tab_parametres[1] / 2)  - (long_info / 2) - 10;
+        posy++;
+    }
+    mvprintw((tab_parametres[0] / 3) + 8, (tab_parametres[1] / 2) - long_info / 2, info);
     refresh();
-    
     
     while(1)
     {
