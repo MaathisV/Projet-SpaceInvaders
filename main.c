@@ -43,7 +43,7 @@ int main()
                 break;
             case 1:
                 clear();
-                //Regles();
+                Regles();
                 break;
             case 2:
                 clear();

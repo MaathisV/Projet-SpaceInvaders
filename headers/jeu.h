@@ -110,4 +110,10 @@ Entrées/Sorties : element (tableau contenant les données de chaque élements)
 Sorties : néant */
 void GestionApparitionBoss(WINDOW *jeu, int *pointe_effetJoueur, int  *pointe_score, int *pointe_delai, int *pointe_compboss, int compteur, data element[160]);
 
+
+/*Fonction GameOver() : Affiche la fenêtre de GameOver et les stats de la partie
+Entrées : compteur (compte le nombre d'intération de la boucle de jeu), score (score de la partie)
+Sorties : néant */
+void GameOver(int compteur, int score);
+
 #endif

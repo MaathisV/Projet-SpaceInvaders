@@ -100,12 +100,67 @@ void Jouer()
             score++;    //Augmentation du score si le joueur n'est pas touché par un ennemi => not implmented yet)
             if (i >= 80)
                 i = 2;
-        }
-        
-        
+        }        
         usleep(10000);
     }
+
+        //Fenêtre de Game Over
+    delwin(jeu);
+    clear();
+    refresh();
+    GameOver(compteur, score);
 }
+
+
+void Regles()
+{
+        //Affichage des règles et du lore du jeu (l'affichage est centré par rapport à la taille du terminal)
+    mvprintw((tab_parametres[0]/2) - (22/2) + 0, (tab_parametres[1]/2)-(38/2), "Bienvenue à toi pilote de l'espace !");
+    mvprintw((tab_parametres[0]/2) - (22/2) + 1, (tab_parametres[1]/2)-(77/2), "Seulement voilà, il semblerait que tu ai perdu ton chemin et qu'il n'existe");
+    mvprintw((tab_parametres[0]/2) - (22/2) + 2, (tab_parametres[1]/2)-(23/2), "aucune porte de sortie");
+    mvprintw((tab_parametres[0]/2) - (22/2) + 4, (tab_parametres[1]/2)-(63/2), "Tu devras donc survivre le plus longtemps possible en évitant");
+    mvprintw((tab_parametres[0]/2) - (22/2) + 5, (tab_parametres[1]/2)-(35/2), " les ennemis ");
+    attron(COLOR_PAIR(4));
+    printw(design_elem[3]);
+    attroff(COLOR_PAIR(4));
+    printw(" et les malus ");
+    attron(COLOR_PAIR(6));
+    printw(design_elem[5]);
+    attroff(COLOR_PAIR(6));
+    mvprintw((tab_parametres[0]/2) - (22/2) + 7, (tab_parametres[1]/2)-(54/2), "N'aie crainte ! Tu pourras ramasser les pilules ");
+    attron(COLOR_PAIR(5));
+    printw(design_elem[4]);
+    attroff(COLOR_PAIR(5));
+    mvprintw((tab_parametres[0]/2) - (22/2) + 8, (tab_parametres[1]/2)-(62/2), "et les bonus ");
+    attron(COLOR_PAIR(7));
+    printw(design_elem[6]);
+    attroff(COLOR_PAIR(7));
+    printw(" qui te tomberont dessus lors de ton aventure.");
+    mvprintw((tab_parametres[0]/2) - (22/2) + 10, (tab_parametres[1]/2)-(53/2), "MAIS ATTENTION ! Au bout d'un moment le BOSS ");
+    attron(COLOR_PAIR(3));
+    printw(design_elem[2]);
+    attroff(COLOR_PAIR(3));
+    mvprintw((tab_parametres[0]/2) - (22/2) + 11, (tab_parametres[1]/2)-(77/2), "viendra mettre son grain de sel dans la bataille, et pas qu'une seule fois !");
+    mvprintw((tab_parametres[0]/2) - (22/2) + 13, (tab_parametres[1]/2)-(20/2), "Aller à Gauche : Q");
+    mvprintw((tab_parametres[0]/2) - (22/2) + 14, (tab_parametres[1]/2)-(20/2), "Aller à Droite : D");
+    mvprintw((tab_parametres[0]/2) - (22/2) + 15, (tab_parametres[1]/2)-(15/2), "Tirer : Espace");
+    mvprintw((tab_parametres[0]/2) - (22/2) + 16, (tab_parametres[1]/2)-(36/2), "La navigation globale se fait avec ");
+    mvprintw((tab_parametres[0]/2) - (22/2) + 17, (tab_parametres[1]/2)-(50/2), "les flèches directionnelles et la touche Entrée");
+    mvprintw((tab_parametres[0]/2) - (22/2) + 18, (tab_parametres[1]/2)-(56/2), "Il est possible d'annuler/quitter en pressant deux fois");
+    mvprintw((tab_parametres[0]/2) - (22/2) + 19, (tab_parametres[1]/2)-(55/2), "la touche échap lorsque ");
+    attron(A_DIM);
+    printw("ESC");
+    attroff(A_DIM);
+    printw(" est affiché à l'écran");
+    attron(A_ITALIC);
+    mvprintw((tab_parametres[0]/2) - (22/2) + 21, (tab_parametres[1]/2)-(54/2), "Appuyez sur n'importe quelle touche pour continuer...");
+    attroff(A_ITALIC);
+    refresh();
+    int wait = getchar();
+    clear();
+    refresh();
+}
+
 
 int DebutPartie(score joueur[11])
 {
@@ -814,4 +869,56 @@ void GestionApparitionBoss(WINDOW *jeu, int *pointe_effetJoueur, int  *pointe_sc
         mvprintw(1, 1, "boss 3");
         element[1].init = 0;    //Le boss disparait au bout de 1min30
     }
+}
+
+
+void GameOver(int compteur, int score)
+{
+    int long_pseudo = strlen(joueur[11].pseudo);
+    char titre[5][55] = {"   _________    __  _________   ____ _    ____________ ",
+                         "  / ____/   |  /  |/  / ____/  / __ \\ |  / / ____/ __ \\",
+                         " / / __/ /| | / /|_/ / __/    / / / / | / / __/ / /_/ /",
+                         "/ /_/ / ___ |/ /  / / /___   / /_/ /| |/ / /___/ _, _/ ",
+                         "\\____/_/  |_/_/  /_/_____/   \\____/ |___/_____/_/ |_|  "};
+    WINDOW *GameOver = newwin(10, 32, (tab_parametres[0]/2) - (10/2), (tab_parametres[1]/2) - (32/2));  //Définition de la fenêtre
+    box(GameOver, 0, 0);
+
+        //Affichage du titre
+    int posy = 0;
+    int posx = (tab_parametres[1] / 3);
+    for(int k=0;k<5;k++)
+    {
+        for(int j=0;j<55;j++)
+        {
+            mvprintw(posy, posx, "%c",titre[k][j]);
+            posx++;
+        }
+        posx = (tab_parametres[1] / 2) - (7 / 2);
+        posy++;
+    }
+    refresh();
+
+        //Affichage des stats
+    wattron(GameOver, A_BOLD | A_UNDERLINE);
+    mvwprintw(GameOver, 1, (32/2) - (long_pseudo + 8)/2, "Bravo %s !", joueur[10].pseudo);
+    wattroff(GameOver, A_BOLD | A_UNDERLINE);
+    wattron(GameOver, A_ITALIC | A_UNDERLINE);
+    mvwprintw(GameOver, 3, 1, "Stats :");
+    wattroff(GameOver, A_ITALIC | A_UNDERLINE);
+    mvwprintw(GameOver, 4, 1, "Temps  : %d s", compteur/100);
+    mvwprintw(GameOver, 5, 1, "Score : %d pts", score);
+    wattron(GameOver, A_REVERSE | A_DIM);
+    mvwprintw(GameOver, 8, (32/2) - (22/2), "Appuyez pour continuer");
+    wattroff(GameOver, A_REVERSE | A_DIM);
+    refresh();
+    wrefresh(GameOver);
+
+        //Fonctions d'enregistrement des scores
+    
+
+
+    int wait = getchar();
+    clear();
+    delwin(GameOver);
+    refresh();
 }
