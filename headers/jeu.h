@@ -16,13 +16,6 @@ struct data
 };
 
 
-typedef struct score score;
-struct score
-{
-    char pseudo[14];
-    int score;
-};
-
 
 /*FONCTION Regles() : Affiche les règles du jeu, les contrôles et autres informations (lore, etc)
 Entrées/Sorties : néant*/
@@ -35,9 +28,9 @@ void Jouer();
 
 
 /*Fonction DebutPartie() : setup le début de partie en demandant le nom du joueur et le nombre de vie de départ
-Entrées/Sorties : joueur (tableau des scores)
+Entrées : néant
 Sorties : selection_vie (retourne le nombre de vies sélectionnés par l'utilisateur)*/
-int DebutPartie(score joueur[11]);
+int DebutPartie();
 
 
 /* Fonction AffichageCompteur() : affiche le compteur de départ

@@ -5,25 +5,8 @@ Prototype des fonctions pour la mise en forme du terminal */
 #ifndef HEADERS_TERMINAL
 #define HEADERS_TERMINAL
 
-/*Choix des couleurs de la police et de la fenêtre CONSOLE
-Dans init_pair() le premier argument correspond a la couleur de fond et le second a la couleur de texte
-    Codes couleus :
-        0: noir
-        1: bleu fonce
-        2: vert
-        3: bleu-gris
-        4: marron
-        5: pourpre
-        6: kaki
-        7: gris clair
-        8: gris
-        9: bleu
-        10: vert fluo
-        11: turquoise
-        12: rouge
-        13: rose fluo
-        14: jaune fluo
-        15: blanc               */
+/*Choix et initialisation des couleurs des différents élements à afficher
+Entrées/Sorties : néant */ 
 void color();
 
 

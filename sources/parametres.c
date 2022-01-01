@@ -8,37 +8,36 @@
 
 
 
-extern int tab_parametres[50];
+extern int tab_parametres[17];
 extern char design_elem[7][10];
 
 void Fct_Parametres(int option)
 {
     switch(option)
     {
-        case 0:
+        case 0: //Changer les couleurs
             clear();
             ModifCouleurs();
             break;
-        case 1: //Présentement utilisé pour modifier les caractères des éléments
+        case 1: //Modifier le design des éléments
             clear();
             ModifDesign();
             break;
-        case 2:
+        case 2: //Mettre à jour la taille du terminal
             clear();
             dim_terminal();
-            return;
             break;
-        case 3:
+        case 3: //Réinitialisation du tableau des scores
             clear();
             printw("Scores effacé");
             int c = getch();
             return;
             break;
-        case 4:
+        case 4: //Retour au menu précédent
             clear();
             break;
     }
-}   //"Changer les couleurs", "Activer/Désactiver les effets sonores", "Mettre à jour la taille du terminal","Réinitialiser les scores", "Retour
+}
 
 
 void ModifCouleurs()

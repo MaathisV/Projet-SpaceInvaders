@@ -5,7 +5,7 @@
 #include "../headers/terminal.h"
 
 
-extern int tab_parametres[50];
+extern int tab_parametres[17];
 
 void color()
 {
@@ -17,6 +17,7 @@ void color()
     init_pair(5,tab_parametres[10],tab_parametres[11]);   //Couleurs des pilules
     init_pair(6,tab_parametres[12],tab_parametres[13]);   //Couleurs des malus
     init_pair(7,tab_parametres[14],tab_parametres[15]);   //Couleurs des bonus
+    init_pair(8, COLOR_WHITE, COLOR_BLACK); //Couleurs des tirs (non modifiable)
 }
 
 
@@ -55,8 +56,9 @@ void SaisieChaine(WINDOW *fenetre, int y, int x, char chaine[], int longueur, bo
         mvwprintw(fenetre, y, x, chaine);
         wrefresh(fenetre);
         move(y, x+l);
-        char caractere = getch();
-        mvwprintw(fenetre, tab_parametres[0] - 3, (tab_parametres[1]/2) - (17/2),"                  ");
+        int caractere = getch();
+        move(tab_parametres[0] - 3, 0);
+        clrtoeol();
         if (isgraph(caractere))
         {
             chaine[l] = caractere;
@@ -68,6 +70,12 @@ void SaisieChaine(WINDOW *fenetre, int y, int x, char chaine[], int longueur, bo
             keypad(fenetre, FALSE);
             curs_set(FALSE);
             return;
+        }
+        else if (caractere == KEY_BACKSPACE)    //Permet d'effacer le caractère précédent avec retour arrière
+        {
+            if (l>0)
+                l--;
+            chaine[l] = ' ';
         }
         else
             mvwprintw(fenetre, tab_parametres[0] - 3, (tab_parametres[1]/2) - (17/2),"Saisie incorrecte");
@@ -120,7 +128,13 @@ void DefautCouleurs()
 void dim_terminal()
 {
     getmaxyx(stdscr, tab_parametres[0], tab_parametres[1]);
-    mvprintw(tab_parametres[0]/3 + 12, 0, "Les dimensions du terminal ont été mises à jour\nLe terminal fait maintenant %d de haut et %d de large\n\tAppuyer pour continuer", tab_parametres[0], tab_parametres[1]);   //Affichage des dimensions du terminal
+    mvprintw(tab_parametres[0]/3 + 6, 0, "Les dimensions du terminal ont été mises à jour\nLe terminal fait maintenant %d de haut et %d de large\n\tAppuyer pour continuer", tab_parametres[0], tab_parametres[1]);   //Affichage des dimensions du terminal
+
+        //Message de prévention en cas de tailles de terminal non conventionnelles
+    if ((tab_parametres[0] < 24) || (tab_parametres[1] < 80))
+        mvprintw(0, 0, "La taille de votre terminal est inférieure aux dimensions recommandées\nLa jouabilité du programme peut être compromise\nEssayez d'agrandir votre terminal svp (puis mettez à jour dans les paramètres)");
+    else if (tab_parametres[0] > 70 || tab_parametres[1] > 200)
+        mvprintw(0, 0, "Votre terminal est très grand\nGardez en tête que cela peut influencer les performances du jeu et sa difficulté");
     int pause = getch();    //Pause pour laisser afficher l'information
     clear();
 }

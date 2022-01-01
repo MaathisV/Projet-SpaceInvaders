@@ -6,7 +6,7 @@
 
 
 
-extern int tab_parametres[50];
+extern int tab_parametres[17];
 
 int ChoixMenuPrincipal()
 {
@@ -47,7 +47,7 @@ int ChoixMenuPrincipal()
         posx=(tab_parametres[1] / 2)  - (long_info / 2) - 10;
         posy++;
     }
-    mvprintw((tab_parametres[0] / 3) + 8, (tab_parametres[1] / 2) - long_info / 2, info);
+    mvprintw(13 + 10, (tab_parametres[1] / 2) - long_info / 2, info);
     refresh();
     
     
@@ -125,7 +125,7 @@ int ChoixMenuParametres()
         posx=(tab_parametres[1] / 2)  - (long_info / 2) - 10;
         posy++;
     }
-    mvprintw((tab_parametres[0] / 3) + 8, (tab_parametres[1] / 2) - long_info / 2, info);
+    mvprintw(13 + 10, (tab_parametres[1] / 2) - long_info / 2, info);
     refresh();
     
     while(1)
