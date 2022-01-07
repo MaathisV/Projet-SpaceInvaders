@@ -3,6 +3,7 @@
 #include <ncurses.h>
 #include <ctype.h>
 #include "../headers/terminal.h"
+#include "../headers/scores.h"
 
 
 extern int tab_parametres[17];
@@ -75,11 +76,12 @@ void SaisieChaine(WINDOW *fenetre, int y, int x, char chaine[], int longueur, bo
         {
             if (l>0)
                 l--;
-            chaine[l] = ' ';
+            chaine[l] = '_';
         }
         else
             mvwprintw(fenetre, tab_parametres[0] - 3, (tab_parametres[1]/2) - (17/2),"Saisie incorrecte");
     }
+    mvwprintw(fenetre, y, x, chaine);
     chaine[longueur] = '\0';  //Place le caractère de fin de chaine
     keypad(fenetre, FALSE);
     curs_set(FALSE);
@@ -102,6 +104,7 @@ void InitTabs()
     dim_terminal();
     DefautCouleurs();
     color();
+    InitScore();
 }
 
 

@@ -1,9 +1,8 @@
-﻿#include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
 #include <unistd.h>
 #include <string.h>
-//#include <math.h>
 #include "../headers/terminal.h"
 #include "../headers/jeu.h"
 #include "../headers/menus.h"
@@ -16,7 +15,7 @@ extern char design_elem[7][10];
 
 void Jouer()
 {
-    data element[160] = {0}; //Définition des données d'un élément (coordonnées et type) avec initialisation à zéro
+    data element[160] = {0}; //Définition des données d'un élément (coordonnées et type) avec initialisation à zéro (0:joueur, 1:boss, 2-80: elements(bonus,malus,ennemis, pilules), 81-160: tirs amis et ennemis) -> un tableau aussi grand permet d'afficher sans problème des elements sur une fenetre de jeu jusqu'à 80 lignes de haut, idem pour les tirs. Jouer avec une fenetre plus haute ne posera pas de problème, il y aura juste un moment de vide jusqu'a ce que tout les éléments aient disparus
     int vie;    //nb de vie du joueur
     int *pointe_vie = &vie;    //Pointe la variable vie
     int clavier;    //Saisie utilisateur
@@ -25,7 +24,6 @@ void Jouer()
     int i=2;    //Permet de controler l'itération (fais en sorte que le délai soit respecté)
     int score=0;
     int *pointe_score=&score;    //Pointeur sur la variable score
-    //double long_sc = 8 + log(score) + 1;
     int delai=100;  //Controle la vitesse des éléments (100 correspond à une seconde)
     int *pointe_delai=&delai;    //Pointeur sur la variable delai
     int effetJoueur=0; //Désigne le malus ou bonus qui affecte le joueur (0: rien, 11: acceleration des éléments, 12: inversion des commandes du vaisseau, 21: invicibilité, 22: canon activé)
@@ -97,7 +95,7 @@ void Jouer()
         if (((compteur%delai) == 0) && (element[1].init == 0))    //Si le délai est respecté et que le boss n'est pas initialisé
         {
             i++;
-            score++;    //Augmentation du score si le joueur n'est pas touché par un ennemi => not implmented yet)
+            score++;
             if (i >= 80)
                 i = 2;
         }        
@@ -107,7 +105,6 @@ void Jouer()
         //Fenêtre de Game Over
     delwin(jeu);
     clear();
-    refresh();
     GameOver(compteur, score);
 }
 
@@ -122,24 +119,24 @@ void Regles()
     mvprintw((tab_parametres[0]/2) - (22/2) + 5, (tab_parametres[1]/2)-(35/2), " les ennemis ");
     attron(COLOR_PAIR(4));
     printw(design_elem[3]);
-    attroff(COLOR_PAIR(4));
+    attron(COLOR_PAIR(1));
     printw(" et les malus ");
     attron(COLOR_PAIR(6));
     printw(design_elem[5]);
-    attroff(COLOR_PAIR(6));
+    attron(COLOR_PAIR(1));
     mvprintw((tab_parametres[0]/2) - (22/2) + 7, (tab_parametres[1]/2)-(54/2), "N'aie crainte ! Tu pourras ramasser les pilules ");
     attron(COLOR_PAIR(5));
     printw(design_elem[4]);
-    attroff(COLOR_PAIR(5));
+    attron(COLOR_PAIR(1));
     mvprintw((tab_parametres[0]/2) - (22/2) + 8, (tab_parametres[1]/2)-(62/2), "et les bonus ");
     attron(COLOR_PAIR(7));
     printw(design_elem[6]);
-    attroff(COLOR_PAIR(7));
+    attron(COLOR_PAIR(1));
     printw(" qui te tomberont dessus lors de ton aventure.");
     mvprintw((tab_parametres[0]/2) - (22/2) + 10, (tab_parametres[1]/2)-(53/2), "MAIS ATTENTION ! Au bout d'un moment le BOSS ");
     attron(COLOR_PAIR(3));
     printw(design_elem[2]);
-    attroff(COLOR_PAIR(3));
+    attron(COLOR_PAIR(1));
     mvprintw((tab_parametres[0]/2) - (22/2) + 11, (tab_parametres[1]/2)-(77/2), "viendra mettre son grain de sel dans la bataille, et pas qu'une seule fois !");
     mvprintw((tab_parametres[0]/2) - (22/2) + 13, (tab_parametres[1]/2)-(20/2), "Aller à Gauche : Q");
     mvprintw((tab_parametres[0]/2) - (22/2) + 14, (tab_parametres[1]/2)-(20/2), "Aller à Droite : D");
@@ -198,6 +195,7 @@ int DebutPartie()
             break;
 
         case 27:    //touche esc pressé on retourne au menu
+            strcpy(joueur[10].pseudo, "____________");
             curs_set(FALSE);
             clear();
             keypad(stdscr, FALSE);
@@ -359,16 +357,13 @@ void MajAffInterface(data element[160], int vie, int score, int effetJoueur, int
             //mvprintw(tab_parametres[0] - 1, (tab_parametres[1]/2) - (7/2), barres_prog[remplissage]);   //Affichage de la barre de progression
             break;
         case 0:
+            move(tab_parametres[0] - 2, 0); //Efface le bas de l'écran
+            clrtobot();
             if (element[1].init == 1)   //Si le boss est présent le joueur ne peut pas avoir d'effet actif
             {
                 attron(COLOR_PAIR(3) | A_UNDERLINE);
                 mvprintw(tab_parametres[0] - 2, (tab_parametres[1]/2) - (10/2), "BOSS ACTIF");
                 attroff(COLOR_PAIR(3) | A_UNDERLINE);
-            }
-            else
-            {
-                move(tab_parametres[0] - 2, 0); //Efface le bas de l'écran
-                clrtobot();
             }
             break;
     }
@@ -425,7 +420,7 @@ int Tirage()
 {
     int element;    //Désigne l'élément à apparaitre tiré au sort
     int tirage; //Valeur aléatoire qu décide du prochain element
-    int nb_bonus, nb_malus, nb_pilules;  //Compte le nombre d'élements respectifs apparus consécutivement pour restreindre l'aléatoire
+    int nb_bonus=0, nb_malus=0, nb_pilules=0;  //Compte le nombre d'élements respectifs apparus consécutivement pour restreindre l'aléatoire
 
     tirage = rand()%20;
 
@@ -607,9 +602,9 @@ void GestionAff(WINDOW *jeu, data element[], int compteur, int delai)
 
 if (element[1].init == 1)
     {
-        wattron(jeu, COLOR_PAIR(3) | A_UNDERLINE);
+        wattron(jeu, COLOR_PAIR(3));
         mvwprintw(jeu, element[1].y, element[1].x, design_elem[2]); //Affichage du boss
-        wattroff(jeu, COLOR_PAIR(3) | A_UNDERLINE);
+        wattroff(jeu, COLOR_PAIR(3));
     }
 
     if ((compteur%delai) == 0)
@@ -692,11 +687,9 @@ void GestionCollision(int *pointe_vie, int *pointe_effetJoueur, int *pointe_scor
 {
     for (int j=2; j<80; j++)    //Balayage éléments
     {
-        if ((element[j].init == 1) || (element[1].init == 1))
-        {
-            for (int k=80; k<100; k++)   //Balayage des tirs (uniquements pour les éléments initialisés)
+            for (int k=80; k<100; k++)   //Balayage des tirs
             {
-                if (element[k].init == 1) //Verification des collisions entre les tirs initialisés
+                if ((element[k].init == 1) || (element[j].init == 1)) //Verification des collisions entre les tirs initialisés
                 {
                     if ((element[k].type == 5) && (element[j].type == 4) && (element[k].y == element[j].y) && (element[k].x >= element[j].x) && (element[k].x <= element[j].x + 5))   //Si un tir ami rentre en collision avec un ennemi
                     {
@@ -721,6 +714,8 @@ void GestionCollision(int *pointe_vie, int *pointe_effetJoueur, int *pointe_scor
             }
 
 
+        if (element[j].init == 1)
+        {
             if ((*pointe_effetJoueur != 21) && (element[j].type == 4) && (element[j].y == element[0].y) && ((element[j].x < element[0].x + 5) && (element[j].x > element[0].x - 5))) //Gestion des collision pour les ennemis (sauf si le joueur est invincible)
             {
                 *pointe_vie = *pointe_vie - 1;
@@ -822,7 +817,7 @@ void GestionApparitionBoss(WINDOW *jeu, int *pointe_effetJoueur, int  *pointe_sc
     int score_boss = *pointe_score - (tab_parametres[0] - 6)/2; //Calcul un score relatif à la hauteur de l'écran, évite que le boss apparaisse avant que les éléments aient atteint le bas de l'écran dans le cas d'un grand terminal
 
         //Si aucun boss n'est initialisé, plusieurs boss apparaitront en fonction du score, le dernier boss apparaitra tout les 750 point environ (la possibilité d'un tir sur un ennemi est prise en compte)
-    if ((element[1].init == 0) && ((score_boss >= 45) && (score_boss < 55)) || ((score_boss >= 245) && (score_boss < 250)))
+    if ((element[1].init == 0) && (((score_boss >= 45) && (score_boss < 55)) || ((score_boss >= 245) && (score_boss < 250))))
     {
         *pointe_effetJoueur = 0;
         for (int j=2; j<160; j++)   //Désinitialisation de tout les éléments
@@ -880,18 +875,17 @@ void GestionApparitionBoss(WINDOW *jeu, int *pointe_effetJoueur, int  *pointe_sc
 
 void GameOver(int compteur, int score)
 {
-    int long_pseudo = strlen(joueur[11].pseudo);
     char titre[5][55] = {"   _________    __  _________   ____ _    ____________ ",
                          "  / ____/   |  /  |/  / ____/  / __ \\ |  / / ____/ __ \\",
                          " / / __/ /| | / /|_/ / __/    / / / / | / / __/ / /_/ /",
                          "/ /_/ / ___ |/ /  / / /___   / /_/ /| |/ / /___/ _, _/ ",
                          "\\____/_/  |_/_/  /_/_____/   \\____/ |___/_____/_/ |_|  "};
-    WINDOW *GameOver = newwin(10, 32, (tab_parametres[0]/2) - (10/2), (tab_parametres[1]/2) - (32/2));  //Définition de la fenêtre
+    WINDOW *GameOver = newwin(12, 32, (tab_parametres[0]/2) - (12/2), (tab_parametres[1]/2) - (32/2));  //Définition de la fenêtre
     box(GameOver, 0, 0);
 
         //Affichage du titre
     int posy = 1;
-    int posx = (tab_parametres[1] / 3);
+    int posx = (tab_parametres[1] / 2) - (55 / 2);
     for(int k=0;k<5;k++)
     {
         for(int j=0;j<55;j++)
@@ -899,29 +893,32 @@ void GameOver(int compteur, int score)
             mvprintw(posy, posx, "%c",titre[k][j]);
             posx++;
         }
-        posx = (tab_parametres[1] / 2) - (7 / 2);
+        posx = (tab_parametres[1] / 2) - (55 / 2);
         posy++;
     }
     refresh();
 
         //Affichage des stats
     wattron(GameOver, A_BOLD | A_UNDERLINE);
-    mvwprintw(GameOver, 1, (32/2) - (long_pseudo + 8)/2, "Bravo %s !", joueur[10].pseudo);
+    mvwprintw(GameOver, 1, (32/2) - (7/2), "Bravo !");
+    mvwprintw(GameOver, 3, 1, "Pseudo : %s", joueur[10].pseudo);
     wattroff(GameOver, A_BOLD | A_UNDERLINE);
     wattron(GameOver, A_ITALIC | A_UNDERLINE);
-    mvwprintw(GameOver, 3, 1, "Stats :");
+    mvwprintw(GameOver, 5, 1, "Stats :");
     wattroff(GameOver, A_ITALIC | A_UNDERLINE);
-    mvwprintw(GameOver, 4, 1, "Temps  : %d s", compteur/100);
-    mvwprintw(GameOver, 5, 1, "Score : %d pts", score);
+    mvwprintw(GameOver, 6, 1, "Temps  : %d s", compteur/100);
+    mvwprintw(GameOver, 7, 1, "Score : %d pts", score);
     wattron(GameOver, A_REVERSE | A_DIM);
-    mvwprintw(GameOver, 8, (32/2) - (22/2), "Appuyez pour continuer");
+    mvwprintw(GameOver, 10, (32/2) - (22/2), "Appuyez pour continuer");
     wattroff(GameOver, A_REVERSE | A_DIM);
     refresh();
     wrefresh(GameOver);
 
         //Fonctions d'enregistrement des scores
-    
-
+    joueur[10].score=score;
+    TriScore();
+    SauvScore();
+    strcpy(joueur[10].pseudo, "____________");
 
     int wait = getchar();
     clear();

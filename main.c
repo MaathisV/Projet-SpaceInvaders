@@ -9,16 +9,18 @@ gcc -o projet main.c -lncurses
 #include <ncurses.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "sources/terminal.c"
-#include "sources/jeu.c"
-#include "sources/menus.c"
-#include "sources/parametres.c"
+#include "sources/terminal.c"   //Fonctions du terminal (couleurs, saisies, taille)
+#include "sources/jeu.c"    //Fonction du jeu (gameover, parametres de la partie, boucle de jeu, compteur de démarrage)
+#include "sources/menus.c"  //Fonctions qui affiche et gère la selection des différents menus (principal et paramètres)
+#include "sources/parametres.c" //Fonctions  de paramètrage du programme (changement de couleurs, changement de design, maj taille terminal, réinitialisation des scores)
+#include "sources/scores.c" //Fonctions d'enregistrement, récupération, affichage et tri des scores
+//Les .h du dossier headers contiennent les prototypes des fonctions ci-dessus
 
 
 
 int tab_parametres[17]; //Tableau contenant les paramètres du jeu (0-1 : dimensions y et x du terminal, 2-15 : paires de couleurs des éléments du programme, 16 : effets sonores on/off (pas implémenté pour le moment))
 score joueur[11];   //Tableau contenant le nom des joueurs et leurs meilleurs scores
-char design_elem[7][10] = {"Interface", "<[°]>", "<XXXXX>", "XXXXX", "OOOOO", "m", "b"};  //Elements du jeu
+char design_elem[7][10] = {"Interface", "<[°]>", "<X|-|X>", "XXXXX", "OOOOO", "b", "m"};  //Elements du jeu : joueur, boss, ennemi, pilule, malus et bonus. Interface sert à montrer la couleur de l'interface dans les paramètres (n'est pas utilisé en jeu)
 
 
 int main()
@@ -51,7 +53,8 @@ int main()
                 Fct_Parametres(option);
                 break;
             case 3: //Tableau des scores
-                printw("Scores");
+                clear();
+                AffScore();
                 break;
             case 4: //Quitter le jeu
                 break;

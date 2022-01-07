@@ -13,7 +13,7 @@ int ChoixMenuPrincipal();
 
 /*FONCTION ChoixMenuParametres() : Récupère le choix de l'utilisateur 
 Entrées : néant
-Sorties : select (choix de l'utilisateur ; (Changer les couleurs", "Activer/Désactiver les effets sonores", "Mettre à jour la taille du terminal","Réinitialiser les scores", "Rentrer un mot de passe", "Retour))*/
+Sorties : select (choix de l'utilisateur ; (Changer les couleurs", "Changer le design des éléments", "Mettre à jour la taille du terminal","Réinitialiser les scores", "Rentrer un mot de passe", "Retour))*/
 int ChoixMenuParametres();
 
 #endif

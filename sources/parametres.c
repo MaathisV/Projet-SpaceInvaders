@@ -5,6 +5,7 @@
 #include "../headers/parametres.h"
 #include "../headers/menus.h"
 #include "../headers/terminal.h"
+#include "../headers/scores.h"
 
 
 
@@ -29,8 +30,11 @@ void Fct_Parametres(int option)
             break;
         case 3: //Réinitialisation du tableau des scores
             clear();
-            printw("Scores effacé");
-            int c = getch();
+            FILE* fscores = fopen("classement", "w+");
+            for (int i=0; i<11; i++)
+                fprintf(fscores, "%s : %d\n", "____________", 0);
+            fclose(fscores);
+            InitScore();
             return;
             break;
         case 4: //Retour au menu précédent
@@ -119,7 +123,7 @@ void ModifDesign()
     box(fenModifDesign, 0, 0);
     refresh();
     int select=0; //Désigne l'élément duquel on doit modifier le design
-    char design_defaut[6][10] = {"<[°]>", "<XXXXX>", "XXXXX", "OOOOO", "m", "b"};  //Désign par défaut des éléments
+    char design_defaut[6][10] = {"<[°]>", "<X|-|X>", "XXXXX", "OOOOO", "b", "m"};  //Désign par défaut des éléments
 
     keypad(fenModifDesign, TRUE);
 

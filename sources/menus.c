@@ -82,7 +82,6 @@ int ChoixMenuPrincipal()
                     select = 4;
                 break;
             case 10:    //Si Entrée est pressée
-                //wattroff(menuPr, COLOR_PAIR(1));
                 return select;  //Retourne le choix validé par l'utilisateur
                 break;
         }
