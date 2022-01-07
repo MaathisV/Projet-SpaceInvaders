@@ -15,14 +15,14 @@ extern char design_elem[7][10];
 
 void Jouer()
 {
-    data element[160] = {0}; //Définition des données d'un élément (coordonnées et type) avec initialisation à zéro (0:joueur, 1:boss, 2-80: elements(bonus,malus,ennemis, pilules), 81-160: tirs amis et ennemis) -> un tableau aussi grand permet d'afficher sans problème des elements sur une fenetre de jeu jusqu'à 80 lignes de haut, idem pour les tirs. Jouer avec une fenetre plus haute ne posera pas de problème, il y aura juste un moment de vide jusqu'a ce que tout les éléments aient disparus
+    data element[160] = {0}; //Définition des données d'un élément (coordonnées et type) avec initialisation à zéro (0:joueur, 1:boss, 2-82: elements(bonus,malus,ennemis, pilules), 83-159: tirs amis et ennemis) -> un tableau aussi grand permet d'afficher sans problème des elements sur une fenetre de jeu jusqu'à 80 lignes de haut, idem pour les tirs. Jouer avec une fenetre plus haute ne posera pas de problème, il y aura juste un moment de vide jusqu'a ce que tout les éléments aient disparus
     int vie;    //nb de vie du joueur
     int *pointe_vie = &vie;    //Pointe la variable vie
     int clavier;    //Saisie utilisateur
     int pause;  //détermine l'état de la pause
     int compteur = 0;   //Compte le nombre d'itérations de la boucle de jeu
-    int i=2;    //Permet de controler l'itération (fais en sorte que le délai soit respecté)
-    int score=0;
+    int i=2;    //Désigne la case dans laquelle un nouvel élément est intialisé
+    int score=0;    //Score de la partie en cours
     int *pointe_score=&score;    //Pointeur sur la variable score
     int delai=100;  //Controle la vitesse des éléments (100 correspond à une seconde)
     int *pointe_delai=&delai;    //Pointeur sur la variable delai
@@ -167,7 +167,7 @@ int DebutPartie()
 
 
     mvprintw(tab_parametres[0] / 4, (tab_parametres[1] / 2) - (25 / 2), "Saisissez votre pseudo :");
-    mvprintw((tab_parametres[0] / 4) + 1, (tab_parametres[1] / 2) - (36 / 2), "(12 caractères alphanumériques maxi)");
+    mvprintw((tab_parametres[0] / 4) + 1, (tab_parametres[1] / 2) - (22 / 2), "(12 caractères maxi)");
     SaisieChaine(stdscr, (tab_parametres[0] / 4) + 2, (tab_parametres[1] / 2) - (25 / 2), joueur[10].pseudo, 12, TRUE);  //La derniere case du tableau stocke les données du joueur de la partie en cours
         
     curs_set(TRUE);
@@ -406,9 +406,9 @@ void initElem(data element[160], int i)
     {   //Si l'élément n'est pas initialisé on détermine son type avec tirage puis sa position x sur toute la largeur de l'écran bord exclu (la largeur de l'élément est également retiré de la range)
         element[i].y = 0;
         element[i].type = Tirage();
-        if ((element[i].type == 3) || (element[i].type == 4))
-            element[i].x = rand()%(tab_parametres[1] - 5 - 2) + 1;
-        if ((element[i].type == 2) || (element[i].type == 1))
+        if ((element[i].type == 3) || (element[i].type == 4))   //ennemi ou pilule
+            element[i].x = rand()%(tab_parametres[1] - 5 - 2) + 1;  //Position aléatoire entre 1 et la taille max du terminal (bords de la fenêtre et taille de l'élément exclus)
+        if ((element[i].type == 2) || (element[i].type == 1))   //malus ou bonus
             element[i].x = rand()%(tab_parametres[1] - 1 - 2) + 1;
         element[i].init = 1;
     }    
@@ -427,7 +427,7 @@ int Tirage()
     if ((tirage == 0) || (tirage == 1))
         {
             element = 1;    //Un malus apparait
-            //nb_malus++;   //Non utilisé pour le moment, possible de l'utilisé pour restreindre le nombre de malus apparaissant d'affilé
+            //nb_malus++;   //Non utilisé pour le moment, possible de l'utiliser pour restreindre le nombre de malus apparaissant d'affilé
             nb_bonus = 0;
             nb_pilules = 0;
         }
@@ -496,7 +496,7 @@ void GestionMvElem(int clavier, data element[160], int *pointe_effetJoueur, int 
         {
             *pointe_derniertir = compteur;
             boucle_tir = TRUE;
-            for (int k=80; k<160 && boucle_tir; k++)
+            for (int k=83; k<160 && boucle_tir; k++)
             {
                 if (element[k].init == 0)   //balayage des cases pour les tirs, arrêt du balayage à la première case non initialisé trouvée
                 {
@@ -529,7 +529,7 @@ void GestionMvElem(int clavier, data element[160], int *pointe_effetJoueur, int 
         if ((compteur%(delai*2)) == 0)  //Il peut tirer deux tirs en fonction du délai
         {
             boucle_tir = TRUE;
-            for (int k=80; k<160 && boucle_tir; k++)    //Balayage pour le premier tir
+            for (int k=83; k<160 && boucle_tir; k++)    //Balayage pour le premier tir
             {
                 if (element[k].init == 0)   //balayage des cases pour les tirs, arrêt du balayage à la première case non initialisé trouvée
                 {
@@ -541,7 +541,7 @@ void GestionMvElem(int clavier, data element[160], int *pointe_effetJoueur, int 
                 }
             }
             boucle_tir = TRUE;
-            for (int k=80; k<160 && boucle_tir; k++)    //Balayage pour le second tir
+            for (int k=83; k<160 && boucle_tir; k++)    //Balayage pour le second tir
             {
                 if (element[k].init == 0)   //balayage des cases pour les tirs, arrêt du balayage à la première case non initialisé trouvée
                 {
@@ -558,7 +558,7 @@ void GestionMvElem(int clavier, data element[160], int *pointe_effetJoueur, int 
     if ((compteur%delai) == 0)
     {   if (element[1].init == 0)   //On initialise aucun élément tant que le boss est initialisé
             initElem(element, i);
-        for (int j=2; j<80; j++)    //On passe que sur les éléments qui ont un délai à respecter (pilules, ennemis, bonus, malus)
+        for (int j=2; j<83; j++)    //On passe que sur les éléments qui ont un délai à respecter (pilules, ennemis, bonus, malus)
         {
             if (element[j].init == 1)
             {
@@ -572,7 +572,7 @@ void GestionMvElem(int clavier, data element[160], int *pointe_effetJoueur, int 
 
     if ((compteur%25) == 0) //Contrôle de la vitesse de déplacement des tirs ami et ennemi
     {
-        for (int j=80; j<160; j++) 
+        for (int j=83; j<160; j++) 
         {
             if ((element[j].init == 1) && (element[j].type == 6))   //Si l'élément est initialisé et est un tir ennemi
             {
@@ -609,7 +609,7 @@ if (element[1].init == 1)
 
     if ((compteur%delai) == 0)
     {
-        for (int j=2; j<80; j++)
+        for (int j=2; j<83; j++)
         {
             if (element[j].init == 1)
             {
@@ -639,7 +639,7 @@ if (element[1].init == 1)
             }
         }
     }
-    for (int j=80; j<160; j++)
+    for (int j=83; j<160; j++)
     {
         if (element[j].init == 1)   
         {
@@ -663,7 +663,7 @@ void GestionEff(WINDOW *jeu, data element[160], int compteur, int delai)
 
     if ((compteur%delai) == 0)
     {
-        for (int j=2; j<80; j++)
+        for (int j=2; j<83; j++)
         {
             if (element[j].init == 1);
             {
@@ -674,7 +674,7 @@ void GestionEff(WINDOW *jeu, data element[160], int compteur, int delai)
             }
         }
     }
-    for (int j=80; j<160; j++)
+    for (int j=83; j<160; j++)
     {
         if (element[j].init == 1);  //Pas besoin de vérifier le type, les éléments de 30 à 50 sont forcément des tirs, on ne les efface que s'ils sont initialisés/affichés
             mvwprintw(jeu, element[j].y, element[j].x, " ");
@@ -685,9 +685,9 @@ void GestionEff(WINDOW *jeu, data element[160], int compteur, int delai)
 
 void GestionCollision(int *pointe_vie, int *pointe_effetJoueur, int *pointe_score, data element[160], int compteur, int delai)
 {
-    for (int j=2; j<80; j++)    //Balayage éléments
+    for (int j=2; j<83; j++)    //Balayage éléments
     {
-            for (int k=80; k<100; k++)   //Balayage des tirs
+            for (int k=83; k<100; k++)   //Balayage des tirs
             {
                 if ((element[k].init == 1) || (element[j].init == 1)) //Verification des collisions entre les tirs initialisés
                 {
@@ -918,7 +918,6 @@ void GameOver(int compteur, int score)
     joueur[10].score=score;
     TriScore();
     SauvScore();
-    strcpy(joueur[10].pseudo, "____________");
 
     int wait = getchar();
     clear();

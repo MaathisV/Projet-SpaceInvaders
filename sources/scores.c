@@ -98,7 +98,7 @@ void TriScore()
             }
         }
     }
+        //Mise à zéro de la dernière case du tableau pour la prochaine partie
     joueur[10].score = 0;
-    //VIDER PSEUDO
-
+    strcpy(joueur[10].pseudo, "____________");
 }

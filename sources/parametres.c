@@ -34,7 +34,7 @@ void Fct_Parametres(int option)
             for (int i=0; i<11; i++)
                 fprintf(fscores, "%s : %d\n", "____________", 0);
             fclose(fscores);
-            InitScore();
+            InitScore();    //Réinitialise le tableau joueur à partir du fichier
             return;
             break;
         case 4: //Retour au menu précédent
@@ -87,12 +87,12 @@ void ModifCouleurs()
         {
             case KEY_UP:    //Si flèche haut est pressée
                 select--;
-                if (select == -1)   //Empêche de sortir du nombres de valeurs définies
+                if (select == -1)   //Empêche de sortir du nombre de valeurs définies
                     select = 0;
                 break;
             case KEY_DOWN:  //Si flèche bas est pressée
                 select++;
-                if (select == 16)    //Empêche de sortir du nombres de valeurs définies
+                if (select == 16)    //Empêche de sortir du nombre de valeurs définies
                     select = 15;
                 break;
             case 10:    //Si Entrée est pressée
@@ -105,6 +105,7 @@ void ModifCouleurs()
                 }
                 else if (select == 14)  //On souhaite remettre les valeurs par défaut
                     DefautCouleurs();
+                
                 tab_parametres[select+2]++;  //Incrémente la valeur de la couleur pour l'éléments correspondant dans le tableau des paramètres
                 if (tab_parametres[select+2] > 16)
                     tab_parametres[select+2] = 0;
@@ -117,13 +118,13 @@ void ModifCouleurs()
 
 void ModifDesign()
 {
-    char *listmodif[8] = {"Changer le design du joueur", "Changer le design du BOSS", "Changer le design des ennemis", "Changer le design des pilules", "Changer le design des bonus", "Changer le design des malus", "Design par défaut", "Retour au menu principal"};
+    char *listmodif[8] = {"Changer le design du joueur", "Changer le design du BOSS", "Changer le design des ennemis", "Changer le design des pilules", "Changer le design des malus", "Changer le design des bonus", "Design par défaut", "Retour au menu principal"};
     WINDOW *fenModifDesign = newwin(10, 32, (tab_parametres[0] / 3) - (10/2), (tab_parametres[1] / 2) - (32/2));
     wattron(fenModifDesign,COLOR_PAIR(1)); 
     box(fenModifDesign, 0, 0);
     refresh();
     int select=0; //Désigne l'élément duquel on doit modifier le design
-    char design_defaut[6][10] = {"<[°]>", "<X|-|X>", "XXXXX", "OOOOO", "b", "m"};  //Désign par défaut des éléments
+    char design_defaut[6][10] = {"<[°]>", "<X|-|X>", "XXXXX", "OOOOO", "m", "b"};  //Désign par défaut des éléments
 
     keypad(fenModifDesign, TRUE);
 

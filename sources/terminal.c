@@ -8,6 +8,43 @@
 
 extern int tab_parametres[17];
 
+    //FONCTIONS DE DEMARRAGE ET D'INITIALISATION
+void startscr()
+{
+    initscr();
+    start_color();
+    cbreak();
+    curs_set(FALSE);
+    noecho();
+}
+
+
+void InitTabs()
+{
+    dim_terminal();
+    DefautCouleurs();
+    color();
+    InitScore();
+}
+
+
+void dim_terminal()
+{
+    getmaxyx(stdscr, tab_parametres[0], tab_parametres[1]);
+    mvprintw(tab_parametres[0]/3 + 6, 0, "Les dimensions du terminal ont été mises à jour\nLe terminal fait maintenant %d de haut et %d de large\n\tAppuyer pour continuer", tab_parametres[0], tab_parametres[1]);   //Affichage des dimensions du terminal
+
+        //Message de prévention en cas de tailles de terminal non conventionnelles
+    if ((tab_parametres[0] < 24) || (tab_parametres[1] < 80))
+        mvprintw(0, 0, "La taille de votre terminal est inférieure aux dimensions recommandées\nLa jouabilité du programme peut être compromise\nEssayez d'agrandir votre terminal svp (puis mettez à jour dans les paramètres)");
+    else if (tab_parametres[0] > 70 || tab_parametres[1] > 200)
+        mvprintw(0, 0, "Votre terminal est très grand\nGardez en tête que cela peut influencer les performances du jeu et sa difficulté");
+    int pause = getch();    //Pause pour laisser afficher l'information
+    clear();
+}
+
+
+
+    //FONCTIONS DE GESTION DES COULEURS
 void color()
 {
         //Initialisation des paires de couleurs (texte puis fond)
@@ -22,6 +59,28 @@ void color()
 }
 
 
+void DefautCouleurs()
+{
+        //Dans l'ordre et deux par deux (fond puis texte) : interface, joueur, boss, ennemis, pilules, malus, bonus
+    tab_parametres[3] = COLOR_BLACK;
+    tab_parametres[2] = COLOR_WHITE;
+    tab_parametres[5] = COLOR_BLACK;
+    tab_parametres[4] = COLOR_WHITE;
+    tab_parametres[7] = COLOR_WHITE;
+    tab_parametres[6] = COLOR_BLACK;
+    tab_parametres[9] = COLOR_BLACK;
+    tab_parametres[8] = COLOR_WHITE;
+    tab_parametres[11] = COLOR_BLACK;
+    tab_parametres[10] = COLOR_WHITE;
+    tab_parametres[13] = COLOR_WHITE;
+    tab_parametres[12] = COLOR_BLACK;
+    tab_parametres[15] = COLOR_WHITE;
+    tab_parametres[14] = COLOR_BLACK;
+}
+
+
+
+    //FONCTIONS DE SAISIE
 char nb_getch()
 {
     timeout(0);
@@ -87,58 +146,3 @@ void SaisieChaine(WINDOW *fenetre, int y, int x, char chaine[], int longueur, bo
     curs_set(FALSE);
     return;
 }
-
-
-void startscr()
-{
-    initscr();
-    start_color();
-    cbreak();
-    curs_set(FALSE);
-    noecho();
-}
-
-
-void InitTabs()
-{
-    dim_terminal();
-    DefautCouleurs();
-    color();
-    InitScore();
-}
-
-
-void DefautCouleurs()
-{
-        //Dans l'ordre et deux par deux (fond puis texte) : interface, joueur, boss, ennemis, pilules, malus, bonus
-    tab_parametres[3] = COLOR_BLACK;
-    tab_parametres[2] = COLOR_WHITE;
-    tab_parametres[5] = COLOR_BLACK;
-    tab_parametres[4] = COLOR_WHITE;
-    tab_parametres[7] = COLOR_WHITE;
-    tab_parametres[6] = COLOR_BLACK;
-    tab_parametres[9] = COLOR_BLACK;
-    tab_parametres[8] = COLOR_WHITE;
-    tab_parametres[11] = COLOR_BLACK;
-    tab_parametres[10] = COLOR_WHITE;
-    tab_parametres[13] = COLOR_WHITE;
-    tab_parametres[12] = COLOR_BLACK;
-    tab_parametres[15] = COLOR_WHITE;
-    tab_parametres[14] = COLOR_BLACK;
-}
-
-
-void dim_terminal()
-{
-    getmaxyx(stdscr, tab_parametres[0], tab_parametres[1]);
-    mvprintw(tab_parametres[0]/3 + 6, 0, "Les dimensions du terminal ont été mises à jour\nLe terminal fait maintenant %d de haut et %d de large\n\tAppuyer pour continuer", tab_parametres[0], tab_parametres[1]);   //Affichage des dimensions du terminal
-
-        //Message de prévention en cas de tailles de terminal non conventionnelles
-    if ((tab_parametres[0] < 24) || (tab_parametres[1] < 80))
-        mvprintw(0, 0, "La taille de votre terminal est inférieure aux dimensions recommandées\nLa jouabilité du programme peut être compromise\nEssayez d'agrandir votre terminal svp (puis mettez à jour dans les paramètres)");
-    else if (tab_parametres[0] > 70 || tab_parametres[1] > 200)
-        mvprintw(0, 0, "Votre terminal est très grand\nGardez en tête que cela peut influencer les performances du jeu et sa difficulté");
-    int pause = getch();    //Pause pour laisser afficher l'information
-    clear();
-}
-

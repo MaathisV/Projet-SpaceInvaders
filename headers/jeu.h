@@ -17,11 +17,6 @@ struct data
 
 
 
-/*FONCTION Regles() : Affiche les règles du jeu, les contrôles et autres informations (lore, etc)
-Entrées/Sorties : néant*/
-void Regles();
-
-
 /*FONCTION Jouer() : Démarre une partie, initialise l'interface et appelle les fonctions de déplacement et d'affichage
 Entrées/Sorties : néant*/
 void Jouer();
@@ -31,6 +26,11 @@ void Jouer();
 Entrées : néant
 Sorties : selection_vie (retourne le nombre de vies sélectionnés par l'utilisateur)*/
 int DebutPartie();
+
+
+/*FONCTION Regles() : Affiche les règles du jeu, les contrôles et autres informations (lore, etc)
+Entrées/Sorties : néant*/
+void Regles();
 
 
 /* Fonction AffichageCompteur() : affiche le compteur de départ
@@ -51,16 +51,18 @@ Sorties : si ressort -1 alors quitte la partie */
 int Pause();
 
 
+/*Fonction initElem() : initialise les données (position et type) de chaque élement qui n'est pas initialisé (les éléments sont malus, bonus, pilules et ennemis)
+Entrées : i (indice de la case du tableau element)
+Entrées/Sorties : element (tableau contenant les données de chaque élements) */
+void initElem(data element[160], int i);
+
+
 /*Fontion Tirage() : Tire un nombre aléatoire qui détermine le prochain élement à apparaitre
 Entrées : néant
 Sorties : element (désigne l'élément à apparaitre) */
 int Tirage();
 
 
-/*Fonction initElem() : initialise les données (position et type) de chaque élement qui n'est pas initialisé (les éléments sont malus, bonus, pilules et ennemis)
-Entrées : i (indice de la case du tableau element)
-Entrées/Sorties : element (tableau contenant les données de chaque élements) */
-void initElem(data element[160], int i);
 
 
 /*FONCTION GestionMvElem() : Gère les déplacements des élements ; modifie les valeurs d'abscisses et d'ordonnées
@@ -98,7 +100,7 @@ void GestionEffetMalusBonus(int *pointe_effetJoueur, int *pointe_delai, int *poi
 
 
 /* Fonction GestionApparitionBoss() : Gère l'apparition des boss en fonctions du score, s'occupe également des changements de score ou de délai liés
-Entrées : jeu (fenêtre ncurses dans laquelle sera affichée les éléments), *pointe_effetJoueur (pointeur, désigne l'état positif ou négatif affecté au vaisseau), *pointe_score (pointe la variable score), *pointe_delai (pointeur sur la variable délai), *pointe_compboss (pointeur sur compboss), compteur (compte le nombre d'itérations de la boucle de jeu)
+Entrées : jeu (fenêtre ncurses dans laquelle seront affichés les éléments), *pointe_effetJoueur (pointeur, désigne l'état positif ou négatif affecté au vaisseau), *pointe_score (pointe la variable score), *pointe_delai (pointeur sur la variable délai), *pointe_compboss (pointeur sur compboss), compteur (compte le nombre d'itérations de la boucle de jeu)
 Entrées/Sorties : element (tableau contenant les données de chaque élements)
 Sorties : néant */
 void GestionApparitionBoss(WINDOW *jeu, int *pointe_effetJoueur, int  *pointe_score, int *pointe_delai, int *pointe_compboss, int compteur, data element[160]);
