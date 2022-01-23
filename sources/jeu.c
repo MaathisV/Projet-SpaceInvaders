@@ -817,7 +817,7 @@ void GestionApparitionBoss(WINDOW *jeu, int *pointe_effetJoueur, int  *pointe_sc
     int score_boss = *pointe_score - (tab_parametres[0] - 6)/2; //Calcul un score relatif à la hauteur de l'écran, évite que le boss apparaisse avant que les éléments aient atteint le bas de l'écran dans le cas d'un grand terminal
 
         //Si aucun boss n'est initialisé, plusieurs boss apparaitront en fonction du score, le dernier boss apparaitra tout les 750 point environ (la possibilité d'un tir sur un ennemi est prise en compte)
-    if ((element[1].init == 0) && (((score_boss >= 45) && (score_boss < 55)) || ((score_boss >= 245) && (score_boss < 250))))
+    if ((element[1].init == 0) && (((score_boss >= 45) && (score_boss < 55)) || ((score_boss >= 245) && (score_boss < 255))))
     {
         *pointe_effetJoueur = 0;
         for (int j=2; j<160; j++)   //Désinitialisation de tout les éléments
@@ -847,15 +847,15 @@ void GestionApparitionBoss(WINDOW *jeu, int *pointe_effetJoueur, int  *pointe_sc
     } 
 
         //Condition de disparition des boss en fonction du délai, gère aussi le bonus de score et la mise à jour de la vitesse des éléments (délai)
-    if ((*pointe_delai == 200) && ((compteur - *pointe_compboss) > 20*100) && (element[1].init == 1)) //20 en seconde et 100 le nombre de tours de boucle necéssaire pour 1s (uniquement si on a un délai de 200)
+    if ((*pointe_delai == 100) && ((compteur - *pointe_compboss) > 20*100) && (element[1].init == 1)) //20 en seconde et 100 le nombre de tours de boucle necéssaire pour 1s (uniquement si on a un délai de 200)
     {
         *pointe_score *= 1.1;
-        *pointe_delai = 100;    //Mise en place du nouveau délai
+        *pointe_delai = 99;    //Mise en place du nouveau délai
         mvwprintw(jeu, element[1].y, element[1].x, "       ");  //Effacement du boss
         element[1].init = 0;    //Le boss disparait au bout de 20s
     }
 
-    if ((*pointe_delai == 100) && ((compteur - *pointe_compboss) > 60*100) && (element[1].init == 1)) //60 en seconde et 100 le nombre de tours de boucle necéssaire pour 1s (uniquement si on a un délai de 100)
+    if ((*pointe_delai == 99) && ((compteur - *pointe_compboss) > 60*100) && (element[1].init == 1)) //60 en seconde et 100 le nombre de tours de boucle necéssaire pour 1s (uniquement si on a un délai de 100)
     {
         *pointe_score *= 1.2;
         *pointe_delai = 50;    //Mise en place du nouveau délai
@@ -867,7 +867,6 @@ void GestionApparitionBoss(WINDOW *jeu, int *pointe_effetJoueur, int  *pointe_sc
     {
         *pointe_score *= 1.4;
         mvwprintw(jeu, element[1].y, element[1].x, "       ");  //Effacement du boss
-        mvprintw(1, 1, "boss 3");
         element[1].init = 0;    //Le boss disparait au bout de 1min30
     }
 }
