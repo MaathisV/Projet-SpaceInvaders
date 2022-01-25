@@ -36,7 +36,6 @@ void Jouer()
     int *pointe_derniertir=&derniertir; //Pointeur sur la variable derniertir
     int compboss; //Stocke la valeur compteur au moment de l'apparition du boss
     int *pointe_compboss=&compboss;  //Pointeur sur compboss
-    int boss=0; //Variable permettant de compter le nombre de boss vaincu depuis le début de la partie
 
 
 
@@ -359,7 +358,7 @@ void MajAffInterface(data element[160], int vie, int score, int effetJoueur, int
         case 0:
             move(tab_parametres[0] - 2, 0); //Efface le bas de l'écran
             clrtobot();
-            if (element[1].init == 1)   //Si le boss est présent le joueur ne peut pas avoir d'effet actif
+            if (element[1].init != 0)   //Si le boss est présent le joueur ne peut pas avoir d'effet actif
             {
                 attron(COLOR_PAIR(3) | A_UNDERLINE);
                 mvprintw(tab_parametres[0] - 2, (tab_parametres[1]/2) - (10/2), "BOSS ACTIF");
@@ -510,7 +509,7 @@ void GestionMvElem(int clavier, data element[160], int *pointe_effetJoueur, int 
         }
     }
 
-    if ((element[1].init == 1) && ((compteur%25 == 0)))   //Si le boss est initialisé, il peut bouger (mais moins vite que le joueur)
+    if ((element[1].init != 0) && ((compteur%25 == 0)))   //Si le boss est initialisé, il peut bouger (mais moins vite que le joueur)
     {
             //Les mouvements du boss sont calés sur ceux du joueur, le boss va tenter de suivre le joueur
         if (element[1].x > element[0].x)
@@ -536,7 +535,7 @@ void GestionMvElem(int clavier, data element[160], int *pointe_effetJoueur, int 
                     element[k].init = 1;
                     element[k].type = 6;
                     element[k].x = element[1].x + 2;
-                    element[k].y = element[1].y + 1;
+                    element[k].y = element[1].y;
                     boucle_tir = FALSE;
                 }
             }
@@ -548,7 +547,7 @@ void GestionMvElem(int clavier, data element[160], int *pointe_effetJoueur, int 
                     element[k].init = 1;
                     element[k].type = 6;
                     element[k].x = element[1].x + 4;
-                    element[k].y = element[1].y + 1;
+                    element[k].y = element[1].y;
                     boucle_tir = FALSE;
                 }
             }
@@ -600,7 +599,7 @@ void GestionAff(WINDOW *jeu, data element[], int compteur, int delai)
     mvwprintw(jeu, element[0].y, element[0].x, design_elem[1]);  //affichage du vaisseau
     wattroff(jeu, COLOR_PAIR(2));
 
-if (element[1].init == 1)
+if (element[1].init != 0)
     {
         wattron(jeu, COLOR_PAIR(3));
         mvwprintw(jeu, element[1].y, element[1].x, design_elem[2]); //Affichage du boss
@@ -658,7 +657,7 @@ void GestionEff(WINDOW *jeu, data element[160], int compteur, int delai)
     mvwprintw(jeu, element[0].y, element[0].x, " ");
     mvwprintw(jeu, element[0].y, element[0].x + 5, " ");
 
-    if (element[1].init == 1)
+    if (element[1].init != 0)
         mvwprintw(jeu, element[1].y, element[1].x, "       ");  //Effacement du boss  
 
     if ((compteur%delai) == 0)
@@ -687,9 +686,9 @@ void GestionCollision(int *pointe_vie, int *pointe_effetJoueur, int *pointe_scor
 {
     for (int j=2; j<83; j++)    //Balayage éléments
     {
-            for (int k=83; k<100; k++)   //Balayage des tirs
+            for (int k=83; k<160; k++)   //Balayage des tirs
             {
-                if ((element[k].init == 1) || (element[j].init == 1)) //Verification des collisions entre les tirs initialisés
+                if ((element[k].init == 1) && ((element[j].init == 1) || (element[1].init !=0))) //Verification des collisions entre les tirs et les éléments initalisés (ou le boss)
                 {
                     if ((element[k].type == 5) && (element[j].type == 4) && (element[k].y == element[j].y) && (element[k].x >= element[j].x) && (element[k].x <= element[j].x + 5))   //Si un tir ami rentre en collision avec un ennemi
                     {
@@ -698,7 +697,13 @@ void GestionCollision(int *pointe_vie, int *pointe_effetJoueur, int *pointe_scor
                         element[j].init = 0;    //Désinitialisation de l'élément
                     }
 
-                    else if ((element[k].type == 5) && (element[j].type != 4) && (element[k].y == element[j].y) && (element[k].x >= element[j].x) && (element[k].x <= element[j].x + 5))   //Si un tir ami rentre en collision avec autre chose qu'un ennemi
+                    else if ((element[k].type == 5) && (element[j].type == 3) && (element[k].y == element[j].y) && (element[k].x >= element[j].x) && (element[k].x <= element[j].x + 5))   //Si un tir ami rentre en collision avec une pilule
+                    {
+                        element[k].init = 0;
+                        element[j].init = 0;
+                    }
+
+                    else if ((element[k].type == 5) && ((element[j].type == 2) || (element[j].type == 1)) && (element[k].y == element[j].y) && (element[k].x == element[j].x))   //Si un tir ami rentre en collision avec malus ou bonus
                     {
                         element[k].init = 0;
                         element[j].init = 0;
@@ -817,15 +822,25 @@ void GestionApparitionBoss(WINDOW *jeu, int *pointe_effetJoueur, int  *pointe_sc
     int score_boss = *pointe_score - (tab_parametres[0] - 6)/2; //Calcul un score relatif à la hauteur de l'écran, évite que le boss apparaisse avant que les éléments aient atteint le bas de l'écran dans le cas d'un grand terminal
 
         //Si aucun boss n'est initialisé, plusieurs boss apparaitront en fonction du score, le dernier boss apparaitra tout les 750 point environ (la possibilité d'un tir sur un ennemi est prise en compte)
-    if ((element[1].init == 0) && (((score_boss >= 45) && (score_boss < 55)) || ((score_boss >= 245) && (score_boss < 255))))
+    if ((element[1].init == 0) && (score_boss >= 45) && (score_boss < 55))
     {
         *pointe_effetJoueur = 0;
         for (int j=2; j<160; j++)   //Désinitialisation de tout les éléments
             element[j].init = 0;
-        element[1].init = 1;
+        element[1].init = 1;    //Premier boss
         element[1].y = 1;
         element[1].x = rand()%(tab_parametres[1] - 7 - 2) + 1;
         *pointe_compboss = compteur;          
+    }
+    else if ((element[1].init == 0) && (score_boss >= 245) && (score_boss < 255))
+    {
+        *pointe_effetJoueur = 0;
+        for (int j=2; j<160; j++)   //Désinitialisation de tout les éléments
+            element[j].init = 0;
+        element[1].init = 2;    //Second boss
+        element[1].y = 1;
+        element[1].x = rand()%(tab_parametres[1] - 7 - 2) + 1;
+        *pointe_compboss = compteur;
     }
     else if (element[1].init == 0)  //Si les précédent paliers de scores sont passés et qu'un boss n'est pas initialisé
     {
@@ -837,7 +852,7 @@ void GestionApparitionBoss(WINDOW *jeu, int *pointe_effetJoueur, int  *pointe_sc
                 *pointe_effetJoueur = 0;
                 for (int j=2; j<160; j++)   //Désinitialisation de tout les éléments
                     element[j].init = 0;
-                element[1].init = 1;
+                element[1].init = 3;    //Dernier boss
                 element[1].y = 1;
                 element[1].x = rand()%(tab_parametres[1] - 7 - 2) + 1;
                 *pointe_compboss = compteur;
@@ -846,26 +861,27 @@ void GestionApparitionBoss(WINDOW *jeu, int *pointe_effetJoueur, int  *pointe_sc
         }
     } 
 
-        //Condition de disparition des boss en fonction du délai, gère aussi le bonus de score et la mise à jour de la vitesse des éléments (délai)
-    if ((*pointe_delai == 100) && ((compteur - *pointe_compboss) > 20*100) && (element[1].init == 1)) //20 en seconde et 100 le nombre de tours de boucle necéssaire pour 1s (uniquement si on a un délai de 200)
+        //Condition de disparition des boss, gère aussi le bonus de score et la mise à jour de la vitesse des éléments (délai)
+    if ((element[1].init == 1) && ((compteur - *pointe_compboss) > 20*100)) //20 en seconde et 100 le nombre de tours de boucle necéssaire pour 1s
     {
-        *pointe_score *= 1.1;
-        *pointe_delai = 99;    //Mise en place du nouveau délai
+        *pointe_score *= 1.23;
+        //Pas de changement de délai
         mvwprintw(jeu, element[1].y, element[1].x, "       ");  //Effacement du boss
         element[1].init = 0;    //Le boss disparait au bout de 20s
     }
 
-    if ((*pointe_delai == 99) && ((compteur - *pointe_compboss) > 60*100) && (element[1].init == 1)) //60 en seconde et 100 le nombre de tours de boucle necéssaire pour 1s (uniquement si on a un délai de 100)
+    if ((element[1].init == 2) && ((compteur - *pointe_compboss) > 60*100)) //60 en seconde et 100 le nombre de tours de boucle necéssaire pour 1s
     {
-        *pointe_score *= 1.2;
-        *pointe_delai = 50;    //Mise en place du nouveau délai
+        *pointe_score *= 1.3;
+        *pointe_delai = 75;    //Mise en place du nouveau délai
         mvwprintw(jeu, element[1].y, element[1].x, "       ");  //Effacement du boss
         element[1].init = 0;    //Le boss disparait au bout de 1min
     }
 
-    if ((*pointe_delai == 50) && ((compteur - *pointe_compboss) > 90*100) && (element[1].init == 1)) //90 en seconde et 100 le nombre de tours de boucle necéssaire pour 1s (uniquement si on a un délai de 100)
+    if ((element[1].init == 3) && ((compteur - *pointe_compboss) > 90*100)) //90 en seconde et 100 le nombre de tours de boucle necéssaire pour 1s
     {
         *pointe_score *= 1.4;
+        *pointe_delai = 50;    //Mise en place du nouveau délai
         mvwprintw(jeu, element[1].y, element[1].x, "       ");  //Effacement du boss
         element[1].init = 0;    //Le boss disparait au bout de 1min30
     }

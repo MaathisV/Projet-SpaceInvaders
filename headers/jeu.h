@@ -13,6 +13,7 @@ struct data
     int y;  //Ordonnées y de l'élément
     int type;   //Determine ce qu'est l'élément (1: malus, 2: bonus, 3: pilule, 4: ennemi, 5: tir ami, 6: tir ennemi)
     int init;   //Etat de l'élément (initialisé ou non)
+    //Exeption : pour le boss (case1), 0=non initialisé et 1,2,3 indique quel boss est apparu. En fonction de quoi le score et la vitesse augmentent différemment
 };
 
 
